@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: { default: "CT Forma Fit Jardins", template: "%s | CT Forma Fit" },
   applicationName: SITE.name,
+  verification: {
+    other: { "facebook-domain-verification": "uatwtvl51utgomlb16ah2m30ml7kb7" },
+  },
 };
 
 export const viewport: Viewport = {
