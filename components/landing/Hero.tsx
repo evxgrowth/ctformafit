@@ -82,7 +82,7 @@ export function Hero() {
               animate={{ y: "0%" }}
               transition={{ duration: 1.1, delay: 0.3, ease }}
             >
-              não <span className="text-outline">malha.</span>
+              treina
             </motion.span>
           </span>
           <span className="block overflow-hidden pb-[0.06em]">
@@ -92,7 +92,7 @@ export function Hero() {
               animate={{ y: "0%" }}
               transition={{ duration: 1.1, delay: 0.42, ease }}
             >
-              Você treina.
+              de verdade.
             </motion.span>
           </span>
         </p>
@@ -115,7 +115,7 @@ export function Hero() {
                 <Icon.star key={i} className="h-4 w-4" />
               ))}
             </span>
-            Avaliações reais no Google
+            A melhor avaliação no Google
           </li>
           <li className="flex items-center gap-2">
             <Icon.bolt className="h-5 w-5 text-orange" /> Seg. a sex. até meia-noite

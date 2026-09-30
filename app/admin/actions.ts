@@ -108,6 +108,7 @@ export async function saveTrackingAction(_: ActionState, f: FormData): Promise<A
   };
   await saveSetting("secrets", { ...s.secrets, meta_capi_token: secret("meta_capi_token"), ga4_api_secret: secret("ga4_api_secret") });
   refreshSite();
+  revalidatePath("/admin/integracoes");
   return { ok: true, message: "Pixels e APIs de conversão salvos." };
 }
 
@@ -128,7 +129,68 @@ export async function saveCrmAction(_: ActionState, f: FormData): Promise<Action
     incomplete_delay_min: Math.min(240, Math.max(5, Number(txt(f, "incomplete_delay_min", 5)) || 15)),
   });
   if (token !== KEEP) await saveSetting("secrets", { ...s.secrets, crm_token: token });
+  revalidatePath("/admin/integracoes");
   return { ok: true, message: "Integração com o CRM salva." };
+}
+
+async function postToCrm(body: unknown) {
+  const s = await getSettings();
+  const token = s.secrets.crm_token.trim();
+  if (!token) return { status: 0, text: "", error: "Nenhum token salvo. Cole o token do EVX e clique em Salvar integração." };
+  try {
+    const res = await fetch(s.crm.endpoint, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    return { status: res.status, text: (await res.text()).slice(0, 300), error: "" };
+  } catch (e) {
+    return { status: 0, text: "", error: `Não foi possível falar com o CRM: ${e instanceof Error ? e.message : String(e)}` };
+  }
+}
+
+/**
+ * Teste sem criar nada no CRM: manda um envio vazio de propósito.
+ * Token válido = o CRM recusa os dados (400). Token inválido = 401.
+ */
+export async function testCrmConnectionAction(): Promise<ActionState> {
+  await requireAdmin();
+  const r = await postToCrm({});
+  if (r.error) return { error: r.error };
+  if (r.status === 400 || r.status === 200) return { ok: true, message: "Conectado! O EVX CRM reconheceu o token. Nenhum lead foi criado neste teste." };
+  if (r.status === 401 || r.status === 403) return { error: "Token inválido ou desativado no EVX. Gere um novo token no EVX e salve aqui." };
+  if (r.status === 429) return { error: "O CRM pediu para esperar (muitos envios). Tente de novo em 1 minuto." };
+  if (r.status === 404) return { error: "Endereço de envio não encontrado (404). Confira o campo Endereço de envio." };
+  return { error: `O CRM respondeu com erro ${r.status}. ${r.text}` };
+}
+
+/** Cria um lead de teste de verdade no CRM (com o WhatsApp do próprio CT). */
+export async function sendCrmTestLeadAction(): Promise<ActionState> {
+  await requireAdmin();
+  const s = await getSettings();
+  const r = await postToCrm({
+    name: "TESTE - Integração site CT Forma Fit",
+    phone: s.whatsapp.number.replace(/^55/, ""),
+    tags: ["Teste integração site"],
+    interest: s.crm.interest || undefined,
+    unit: s.crm.unit || undefined,
+    message: "Lead de teste enviado pelo painel do site. Pode excluir.",
+    utm_source: "teste",
+    utm_campaign: "teste_integracao",
+  });
+  if (r.error) return { error: r.error };
+  if (r.status === 200) {
+    const dup = r.text.includes('"duplicate":true');
+    return {
+      ok: true,
+      message: dup
+        ? "O CRM recebeu, mas ignorou por ser repetido (mesmo telefone em menos de 10 min). A conexão está funcionando."
+        : "Lead de teste criado no EVX com o nome “TESTE - Integração site CT Forma Fit”. Confira lá e depois exclua.",
+    };
+  }
+  if (r.status === 401 || r.status === 403) return { error: "Token inválido ou desativado no EVX." };
+  return { error: `O CRM respondeu com erro ${r.status}. ${r.text}` };
 }
 
 export async function syncCrmNowAction(): Promise<ActionState> {

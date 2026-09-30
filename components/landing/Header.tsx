@@ -8,12 +8,13 @@ import { IMG } from "./content";
 import { useMode } from "../SiteProvider";
 
 const NAV = [
-  { href: "#estrutura", label: "Estrutura" },
-  { href: "#tecnologia", label: "Tecnologia" },
-  { href: "#conforto", label: "Conforto" },
-  { href: "#localizacao", label: "Localização" },
-  { href: "#depoimentos", label: "Depoimentos" },
-  { href: "#duvidas", label: "Dúvidas" },
+  { href: "/#estrutura", label: "Estrutura" },
+  { href: "/#tecnologia", label: "Tecnologia" },
+  { href: "/#conforto", label: "Conforto" },
+  { href: "/#localizacao", label: "Localização" },
+  { href: "/#depoimentos", label: "Depoimentos" },
+  { href: "/#duvidas", label: "Dúvidas" },
+  { href: "/contato", label: "Contato" },
 ];
 
 export function Header() {
@@ -48,12 +49,12 @@ export function Header() {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <a href="#topo" className="relative block h-11 w-[104px] shrink-0 sm:h-12 sm:w-[118px]" aria-label="CT Forma Fit — início">
+          <a href={mode === "site" ? "/" : "#topo"} className="relative block h-11 w-[104px] shrink-0 sm:h-12 sm:w-[118px]" aria-label="CT Forma Fit — início">
             <Image src={IMG.logo} alt="CT Forma Fit" fill sizes="120px" className="object-contain object-left" priority />
           </a>
 
           {mode === "site" && (
-          <nav className="hidden items-center gap-7 lg:flex" aria-label="Principal">
+          <nav className="hidden items-center gap-5 lg:flex xl:gap-7" aria-label="Principal">
             {NAV.map((n) => (
               <a
                 key={n.href}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type ReactNode } from "react";
+import { Fragment, useActionState, useEffect, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/app/admin/actions";
 import { inputCls } from "./styles";
@@ -34,20 +34,57 @@ export function Field({
 }
 
 
-export function SecretInput({ name, isSet, placeholder }: { name: string; isSet: boolean; placeholder?: string }) {
+/**
+ * Campo de senha/token. Quando já existe um valor salvo, mostra bolinhas com o final
+ * do token e a confirmação de que está configurado. O valor real nunca vai ao navegador.
+ */
+export function SecretInput({
+  name,
+  last4,
+  placeholder,
+  savedLabel = "Configurado e salvo",
+}: {
+  name: string;
+  last4: string | null;
+  placeholder?: string;
+  savedLabel?: string;
+}) {
+  const isSet = last4 !== null;
   const [editing, setEditing] = useState(!isSet);
   if (!editing) {
     return (
-      <div className="flex items-center gap-3">
+      <div>
         <input type="hidden" name={name} value="__manter__" />
-        <span className="flex-1 border border-white/10 bg-black/30 px-3 py-2.5 font-mono text-sm text-[#a3a09a]">•••••••••••••• configurado</span>
-        <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-[#ff8a3d] hover:underline">
-          Trocar
-        </button>
+        <div className="flex items-center gap-3">
+          <span className="flex-1 border border-emerald-500/40 bg-emerald-500/5 px-3 py-2.5 font-mono text-sm tracking-widest text-white">
+            ••••••••••••••••{last4}
+          </span>
+          <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-[#ff8a3d] hover:underline">
+            Trocar
+          </button>
+        </div>
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-emerald-300">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
+          {savedLabel}
+        </p>
       </div>
     );
   }
-  return <input name={name} type="password" autoComplete="off" placeholder={placeholder} className={`${inputCls} font-mono`} />;
+  return (
+    <div>
+      <input name={name} type="password" autoComplete="off" placeholder={placeholder} className={`${inputCls} font-mono`} />
+      {isSet ? (
+        <button type="button" onClick={() => setEditing(false)} className="mt-1.5 text-xs text-white/60 underline hover:text-white">
+          Cancelar e manter o token atual
+        </button>
+      ) : (
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-200">
+          <span className="h-2 w-2 rounded-full bg-amber-400" aria-hidden />
+          Nenhum valor salvo ainda
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function Submit({ children = "Salvar", className = "" }: { children?: ReactNode; className?: string }) {
@@ -92,9 +129,14 @@ export function ActionForm({
   submitLabel?: string;
 }) {
   const [state, formAction] = useActionState(action, undefined);
+  // Depois de salvar, remonta os campos para mostrarem os valores atualizados do servidor.
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    if (state?.ok) setVersion((v) => v + 1);
+  }, [state]);
   return (
     <form action={formAction} className={className}>
-      {children}
+      <Fragment key={version}>{children}</Fragment>
       <Msg state={state} />
       <Submit>{submitLabel}</Submit>
     </form>

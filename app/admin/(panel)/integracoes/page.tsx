@@ -1,4 +1,7 @@
 import { getSettings } from "@/lib/settings";
+import { db } from "@/lib/db";
+import { fmtDateTime } from "@/lib/leads-query";
+import { CrmTest } from "@/components/admin/CrmTest";
 import { ActionForm, Card, Field, SecretInput, Toggle } from "@/components/admin/ui";
 import { inputCls } from "@/components/admin/styles";
 import { saveCrmAction, saveTrackingAction } from "../../actions";
@@ -8,6 +11,13 @@ export const metadata = { title: "Pixels e CRM" };
 export default async function IntegracoesPage() {
   const s = await getSettings();
   const t = s.tracking;
+  const last4 = (v: string) => (v ? v.trim().slice(-4) : null);
+  const tokenFromEnv = Boolean(process.env.EVX_CRM_TOKEN && s.secrets.crm_token === process.env.EVX_CRM_TOKEN);
+  const [lastSent, errors, pending] = await Promise.all([
+    db().from("leads").select("crm_sent_at").not("crm_sent_at", "is", null).order("crm_sent_at", { ascending: false }).limit(1).maybeSingle(),
+    db().from("leads").select("id", { count: "exact", head: true }).eq("crm_status", "erro"),
+    db().from("leads").select("id", { count: "exact", head: true }).eq("crm_status", "pendente").not("phone", "is", null),
+  ]);
   return (
     <div className="max-w-3xl space-y-6">
       <div>
@@ -30,7 +40,7 @@ export default async function IntegracoesPage() {
               <input name="meta_pixel_id" defaultValue={t.meta_pixel_id} inputMode="numeric" className={inputCls} placeholder="123456789012345" />
             </Field>
             <Field label="Token da API de Conversões" hint="Gerenciador de Eventos > Configurações > API de Conversões > Gerar token de acesso.">
-              <SecretInput name="meta_capi_token" isSet={Boolean(s.secrets.meta_capi_token)} placeholder="EAAB..." />
+              <SecretInput name="meta_capi_token" last4={last4(s.secrets.meta_capi_token)} placeholder="EAAB..." savedLabel="Token salvo. A API de Conversões está ativa." />
             </Field>
             <Field label="Código de evento de teste (opcional)" hint="Use só durante os testes (aba Testar eventos). Apague depois, senão os eventos não contam nas campanhas.">
               <input name="meta_test_event_code" defaultValue={t.meta_test_event_code} className={inputCls} placeholder="TEST12345" />
@@ -48,7 +58,7 @@ export default async function IntegracoesPage() {
                 <input name="ga4_id" defaultValue={t.ga4_id} className={inputCls} placeholder="G-XXXXXXXXXX" />
               </Field>
               <Field label="Chave secreta do Measurement Protocol" hint="GA4 > Administrador > Fluxos de dados > Web > Chaves secretas.">
-                <SecretInput name="ga4_api_secret" isSet={Boolean(s.secrets.ga4_api_secret)} />
+                <SecretInput name="ga4_api_secret" last4={last4(s.secrets.ga4_api_secret)} savedLabel="Chave salva." />
               </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -79,6 +89,30 @@ export default async function IntegracoesPage() {
         </Card>
       </ActionForm>
 
+      <Card title="Status do CRM">
+        <dl className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <dt className="text-xs text-white/50">Token</dt>
+            <dd className={`mt-1 font-semibold ${s.secrets.crm_token ? "text-emerald-300" : "text-amber-200"}`}>
+              {s.secrets.crm_token ? "● Conectado" : "● Não configurado"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-white/50">Último envio com sucesso</dt>
+            <dd className="mt-1 font-semibold text-white">{lastSent.data?.crm_sent_at ? fmtDateTime(lastSent.data.crm_sent_at) : "Nenhum ainda"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-white/50">Fila</dt>
+            <dd className="mt-1 font-semibold text-white">
+              {pending.count ?? 0} pendente(s) · <span className={(errors.count ?? 0) > 0 ? "text-red-300" : ""}>{errors.count ?? 0} com erro</span>
+            </dd>
+          </div>
+        </dl>
+        <div className="mt-6 border-t border-white/10 pt-5">
+          <CrmTest disabled={!s.secrets.crm_token} />
+        </div>
+      </Card>
+
       <Card
         title="EVX CRM"
         desc="Cada agendamento confirmado vai na hora para o CRM. Quem preencheu nome e WhatsApp mas não confirmou é enviado depois do tempo de espera abaixo, com a etiqueta de incompleto, para a equipe recuperar o contato."
@@ -86,7 +120,11 @@ export default async function IntegracoesPage() {
         <ActionForm action={saveCrmAction} submitLabel="Salvar integração">
           <Toggle name="enabled" defaultChecked={s.crm.enabled} label="Enviar leads para o CRM" />
           <Field label="Token da integração" hint="EVX > Configurações > Integrações > Landing pages > Nova landing page. Fica guardado só no servidor.">
-            <SecretInput name="crm_token" isSet={Boolean(s.secrets.crm_token)} />
+            <SecretInput
+              name="crm_token"
+              last4={last4(s.secrets.crm_token)}
+              savedLabel={tokenFromEnv && s.secrets.crm_token ? "Token conectado (vindo da variável EVX_CRM_TOKEN da Vercel)" : "Token conectado e salvo"}
+            />
           </Field>
           <Field label="Endereço de envio">
             <input name="endpoint" defaultValue={s.crm.endpoint} className={`${inputCls} font-mono text-xs`} required />
