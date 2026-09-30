@@ -23,27 +23,35 @@ Passo a passo para publicar em **www.ctformafit.com.br** usando Supabase (banco 
 3. Clique em **Create new project** e espere uns 2 minutos.
 4. No menu da esquerda, abra **SQL Editor** e clique em **New query**.
 5. Abra o arquivo `supabase/schema.sql` deste projeto, copie **todo** o conteúdo, cole no editor e clique em **Run**. Tem que aparecer *Success. No rows returned*.
-6. Vá em **Project Settings** (engrenagem) e depois em **API Keys** (ou **API**). Copie e guarde:
-   - a **Project URL** (algo como `https://abcdefgh.supabase.co`)
-   - a chave secreta: **service_role** ou **secret key**. **Nunca** use a chave `anon`/`publishable`, e nunca mostre a chave secreta para ninguém.
+6. Agora copie **2 informações** e guarde num bloco de notas:
 
-## Passo 2: Enviar o código para o GitHub
+   **a) A URL do projeto.** O jeito mais fácil: olhe o endereço do navegador enquanto está dentro do projeto. Ele fica assim:
+   `https://supabase.com/dashboard/project/abcdefghijklmnop`
+   Pegue esse código do final (`abcdefghijklmnop`) e monte a URL assim:
+   `https://abcdefghijklmnop.supabase.co`
+   (Ela também aparece no botão **Connect**, no topo da página do projeto, e em **Project Settings > Data API > Project URL**.)
 
-O projeto já está com o Git iniciado e com o primeiro commit feito. Falta criar o repositório e enviar.
+   **b) A chave secreta.** Vá em **Project Settings** (engrenagem no fim do menu da esquerda) > **API Keys**.
+   - Se existir a seção **Secret keys**, copie a chave que começa com `sb_secret_...` (clique no ícone de olho ou de copiar).
+   - Se não existir, abra a aba **Legacy API Keys** e copie a **service_role** (clique em *Reveal*).
+   - **Nunca** use a chave `anon` ou `publishable`. E nunca mande a chave secreta para ninguém.
 
-1. No GitHub, clique em **+** (canto superior direito) e depois em **New repository**.
-2. **Repository name:** `ctformafit`. Marque **Private**. **Não** marque README, .gitignore nem licença.
-3. Clique em **Create repository** e copie o endereço que aparece (ex.: `https://github.com/SEU-USUARIO/ctformafit.git`).
-4. No computador, abra o terminal na pasta do projeto (`Documents\claudecod\ctformafit`) e rode:
+## Passo 2: Enviar o código para o GitHub (pelo navegador)
 
-```bash
-git remote add origin https://github.com/SEU-USUARIO/ctformafit.git
-git push -u origin main
-```
+Os arquivos para enviar já estão separados na pasta **`Documentos\claudecod\ctformafit-para-github`** (são 88 arquivos). **Use essa pasta, e não a pasta `ctformafit`**: a `ctformafit` tem milhares de arquivos de sistema que não podem ir para o GitHub.
 
-Na primeira vez, o Windows abre uma janela para você entrar na sua conta do GitHub. Depois disso, o código aparece no repositório.
+1. No GitHub, clique no **+** (canto superior direito) > **New repository**.
+2. Em **Repository name**, escreva `ctformafit`. Marque **Private**. **Não** marque *Add a README*. Clique em **Create repository**.
+3. Na página que abrir, clique no link **uploading an existing file** (na frase "…or create a new file or **upload an existing file**").
+4. No computador, abra a pasta `Documentos\claudecod\ctformafit-para-github` no Explorador de Arquivos.
+5. Clique dentro da pasta, aperte **Ctrl + A** para selecionar tudo e **arraste** para a área cinza do GitHub ("Drag files here…").
+   - Arraste **o que está dentro da pasta**, e não a pasta em si. O GitHub precisa ver o `package.json` direto na raiz.
+   - Espere a lista de arquivos terminar de carregar (aparecem pastas como `app/`, `components/`, `lib/`, `public/`…).
+   - Se os arquivos `.gitignore` e `.env.example` não aparecerem, não tem problema.
+6. Lá embaixo, em **Commit changes**, clique no botão verde **Commit changes**.
+7. Confira: na página do repositório aparecem `app`, `components`, `lib`, `public`, `supabase`, `package.json`, `README.md`… Se tudo apareceu dentro de uma pasta `ctformafit-para-github`, apague o repositório (Settings > Delete this repository) e refaça o item 5 arrastando só o conteúdo.
 
-> O arquivo `.env` com senhas **não** vai para o GitHub (está bloqueado no `.gitignore`). As senhas ficam só na Vercel.
+> Nenhuma senha vai para o GitHub. As senhas ficam só na Vercel (Passo 3).
 
 ## Passo 3: Publicar na Vercel
 
@@ -150,7 +158,7 @@ Nos anúncios, use sempre o link da `/captura` com UTMs, por exemplo:
 
 ## Como atualizar o site depois
 
-Toda alteração enviada ao GitHub (`git add .`, `git commit -m "descrição"`, `git push`) publica sozinha na Vercel em 1 ou 2 minutos. Número do WhatsApp, mensagens, agenda, pixels e CRM mudam direto no painel, sem mexer no código.
+Toda alteração feita no GitHub publica sozinha na Vercel em 1 ou 2 minutos. Para trocar um arquivo pelo navegador: abra a pasta dele no repositório > **Add file** > **Upload files** > arraste o arquivo novo com o mesmo nome > **Commit changes**. Para textos pequenos, abra o arquivo e clique no lápis (**Edit**). Número do WhatsApp, mensagens, agenda, pixels e CRM mudam direto no painel, sem mexer no código.
 
 ## Se algo der errado
 
