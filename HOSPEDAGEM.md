@@ -58,7 +58,7 @@ Os arquivos para enviar já estão separados na pasta **`Documentos\claudecod\ct
 1. Na Vercel, clique em **Add New...** e depois em **Project**.
 2. Em *Import Git Repository*, clique em **Import** ao lado de `ctformafit`. Se o repositório não aparecer, clique em *Adjust GitHub App Permissions* e libere o acesso a ele.
 3. Framework: a Vercel reconhece **Next.js** sozinha. Não mude nada em *Build and Output Settings*.
-4. Abra **Environment Variables** e cadastre uma por uma:
+4. Abra **Environment Variables**. Atalho: copie o bloco de variáveis inteiro (formato `NOME=valor`, uma por linha) e cole no primeiro campo **Key**. A Vercel separa tudo sozinha. As variáveis são:
 
 | Name | Value |
 |---|---|
