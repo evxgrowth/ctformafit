@@ -72,7 +72,7 @@ export function Location() {
               ))}
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <CtaButton intent="experimental" label="Agendar aula experimental" where="localizacao" />
+              <CtaButton slot="localizacao" />
               <a
                 href={SITE.googleMaps}
                 target="_blank"

@@ -44,7 +44,7 @@ export function Steps({ mode }: { mode: SiteMode }) {
           ))}
         </ol>
         <Reveal className="mt-12 flex justify-center">
-          <CtaButton intent="experimental" label="Dar o primeiro passo agora" capturaLabel="Agendar minha visita agora" variant="dark" where="passos" />
+          <CtaButton slot="passos" variant="dark" />
         </Reveal>
       </div>
     </section>
@@ -69,8 +69,8 @@ export function FinalCta() {
           </p>
         </Reveal>
         <Reveal delay={0.25} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <CtaButton intent="experimental" label="Agendar aula experimental" capturaLabel="Agendar minha visita" where="final" />
-          <CtaButton intent="matricula" label="Quero me matricular" capturaLabel="Quero conhecer o CT" variant="ghost" where="final" />
+          <CtaButton slot="final-1" />
+          <CtaButton slot="final-2" variant="ghost" />
         </Reveal>
       </div>
     </section>

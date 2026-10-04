@@ -107,7 +107,7 @@ export function Tech() {
         </div>
 
         <Reveal className="mt-12 flex justify-center">
-          <CtaButton intent="experimental" label="Quero testar na prática" capturaLabel="Quero ver de perto" where="tecnologia" />
+          <CtaButton slot="tecnologia" />
         </Reveal>
       </div>
     </section>

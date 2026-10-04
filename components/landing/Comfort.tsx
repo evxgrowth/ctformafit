@@ -79,7 +79,7 @@ export function Comfort() {
             ))}
           </ul>
           <Reveal delay={0.3} className="mt-10">
-            <CtaButton intent="contato" label="Falar com a equipe" capturaLabel="Agendar uma visita" variant="dark" where="atendimento" />
+            <CtaButton slot="atendimento" variant="dark" />
           </Reveal>
         </div>
       </div>

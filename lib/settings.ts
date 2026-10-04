@@ -1,11 +1,13 @@
 import "server-only";
 import { db, dbConfigured } from "./db";
+import type { ButtonOverrides } from "./buttons";
 
 export type WhatsappSettings = {
   number: string;
   messages: {
     experimental: string;
     matricula: string;
+    aluno: string;
     contato: string;
     conhecer: string;
     agendamento: string;
@@ -55,6 +57,7 @@ export type AllSettings = {
   secrets: SecretSettings;
   crm: CrmSettings;
   schedule: ScheduleSettings;
+  buttons: ButtonOverrides;
 };
 
 export const DEFAULTS: AllSettings = {
@@ -63,6 +66,7 @@ export const DEFAULTS: AllSettings = {
     messages: {
       experimental: "Olá! Vim pelo site e quero agendar uma aula experimental no CT Forma Fit.",
       matricula: "Olá! Vim pelo site e quero fazer minha matrícula no CT Forma Fit.",
+      aluno: "Olá! Já sou aluno(a) e gostaria de falar com a recepção.",
       contato: "Olá! Vim pelo site do CT Forma Fit e gostaria de mais informações.",
       conhecer: "Olá! Vim pelo site e quero conhecer a estrutura do CT Forma Fit.",
       agendamento: "Olá! Agendei uma visita no CT FormaFit pelo site.",
@@ -97,6 +101,7 @@ export const DEFAULTS: AllSettings = {
     block_holidays: true,
     block_optional_holidays: false,
   },
+  buttons: {},
 };
 
 type Key = keyof AllSettings;
@@ -138,8 +143,8 @@ export async function saveSetting<K extends Key>(key: K, value: AllSettings[K]) 
 }
 
 /** Só o que pode ir para o navegador. */
-export type PublicSettings = { whatsapp: WhatsappSettings; tracking: TrackingSettings; serverGa4: boolean };
+export type PublicSettings = { whatsapp: WhatsappSettings; tracking: TrackingSettings; buttons: ButtonOverrides; serverGa4: boolean };
 
 export function toPublic(s: AllSettings): PublicSettings {
-  return { whatsapp: s.whatsapp, tracking: s.tracking, serverGa4: Boolean(s.secrets.ga4_api_secret && s.tracking.ga4_id) };
+  return { whatsapp: s.whatsapp, tracking: s.tracking, buttons: s.buttons, serverGa4: Boolean(s.secrets.ga4_api_secret && s.tracking.ga4_id) };
 }

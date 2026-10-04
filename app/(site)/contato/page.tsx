@@ -83,8 +83,8 @@ export default async function ContatoPage() {
               </p>
             </Reveal>
             <Reveal delay={0.25} className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <CtaButton intent="contato" label="Chamar no WhatsApp" where="contato-topo" />
-              <CtaButton intent="experimental" label="Agendar aula experimental" variant="ghost" where="contato-topo" />
+              <CtaButton slot="contato-1" />
+              <CtaButton slot="contato-2" variant="ghost" />
             </Reveal>
           </div>
         </section>

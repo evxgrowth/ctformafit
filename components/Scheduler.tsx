@@ -8,6 +8,8 @@ import { IMG } from "./landing/content";
 import { Icon } from "./landing/icons";
 import { formatBrPhone, isValidBrPhone, onlyDigits } from "@/lib/phone";
 import { hourLabel, type DaySlots } from "@/lib/schedule";
+import { resolveButton } from "@/lib/buttons";
+import { useSite } from "./SiteProvider";
 import { getAttribution, sendInternal, sessionId, trackLead, trackSchedule, uuid, withAttribution } from "@/lib/client-track";
 
 const SLIDES = [
@@ -34,6 +36,9 @@ function ls(key: string, value?: string | null) {
 type Form = { name: string; phone: string; email: string };
 
 export function Scheduler() {
+  const { buttons } = useSite();
+  const continueLabel = resolveButton("agendar-continuar", buttons).captura;
+  const confirmLabel = resolveButton("agendar-confirmar", buttons).captura;
   const [leadId, setLeadId] = useState("");
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<Form>({ name: "", phone: "", email: "" });
@@ -353,7 +358,7 @@ export function Scheduler() {
                   {field("email", "Seu e-mail", { type: "email", inputMode: "email", autoComplete: "email", maxLength: 200 }, emailOk, "E-mail inválido.")}
 
                   <button type="submit" className="btn btn-primary w-full !min-h-16 !text-xl">
-                    <span>Escolher dia e horário</span>
+                    <span>{continueLabel}</span>
                     <svg className="btn-arrow h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden>
                       <path d="M4 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.6" />
                     </svg>
@@ -482,7 +487,7 @@ export function Scheduler() {
                   disabled={!selectedDay || hour === null || status !== "idle"}
                   className="btn btn-primary mt-6 w-full !min-h-16 !text-xl disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <span>{status === "sending" ? "Confirmando..." : "Confirmar agendamento"}</span>
+                  <span>{status === "sending" ? "Confirmando..." : confirmLabel}</span>
                   {status === "idle" && <Icon.whatsapp className="h-6 w-6" />}
                 </button>
                 <p className="mt-3 text-center text-sm text-muted">Ao confirmar, você será levado ao nosso WhatsApp.</p>

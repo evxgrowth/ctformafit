@@ -66,7 +66,7 @@ export function Manifesto() {
         </div>
 
         <Reveal className="mt-12 flex justify-center">
-          <CtaButton intent="conhecer" label="Quero conhecer o CT" where="pilares" />
+          <CtaButton slot="pilares" />
         </Reveal>
       </div>
     </section>

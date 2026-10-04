@@ -1,7 +1,5 @@
 import { toWhatsappNumber } from "./phone";
 
-export type CtaIntent = "experimental" | "matricula" | "contato" | "conhecer";
-
 export function whatsappUrl(number: string, text: string) {
   const phone = toWhatsappNumber(number);
   return `https://api.whatsapp.com/send/?phone=${phone}&text=${encodeURIComponent(text)}&type=phone_number&app_absent=0`;

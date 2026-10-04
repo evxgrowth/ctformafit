@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/agenda", label: "Agenda" },
   { href: "/admin/whatsapp", label: "WhatsApp" },
+  { href: "/admin/botoes", label: "Botões" },
   { href: "/admin/integracoes", label: "Pixels e CRM" },
   { href: "/admin/usuarios", label: "Admins" },
 ];

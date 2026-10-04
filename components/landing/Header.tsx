@@ -71,10 +71,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             <div className={mode === "site" ? "hidden sm:block" : "block"}>
               <CtaButton
-                intent="experimental"
-                label="Aula experimental"
-                capturaLabel="Agendar visita"
-                where="header"
+                slot="header"
                 className="!min-h-11 !px-5 !py-2 !text-base"
               />
             </div>
@@ -139,7 +136,7 @@ export function Header() {
               ))}
             </nav>
             <div className="relative p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]" onClick={() => setOpen(false)}>
-              <CtaButton intent="experimental" label="Agendar aula experimental" where="menu" className="w-full" />
+              <CtaButton slot="menu" className="w-full" />
             </div>
           </motion.div>
         )}
@@ -156,9 +153,7 @@ export function Header() {
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             <CtaButton
-              intent="experimental"
-              label={mode === "captura" ? "Agendar minha visita" : "Agendar aula experimental"}
-              where="barra-fixa"
+              slot="barra-fixa"
               className="w-full"
             />
           </motion.div>

@@ -104,8 +104,8 @@ export function Hero() {
         </motion.p>
 
         <motion.div {...up(0.8)} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <CtaButton intent="experimental" label="Agendar aula experimental" capturaLabel="Agendar minha visita" where="hero" />
-          <CtaButton intent="matricula" label="Quero me matricular" capturaLabel="Quero conhecer o CT" variant="ghost" where="hero" />
+          <CtaButton slot="hero-1" />
+          <CtaButton slot="hero-2" variant="ghost" />
         </motion.div>
 
         <motion.ul {...up(0.95)} className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-bone/80">
