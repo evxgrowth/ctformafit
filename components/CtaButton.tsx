@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMode, useSite } from "./SiteProvider";
+import { useContactChooser } from "./ContactChooser";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { resolveButton } from "@/lib/buttons";
 import { sendInternal, trackWhatsappClick, withAttribution } from "@/lib/client-track";
@@ -11,7 +12,7 @@ type Variant = "primary" | "ghost" | "dark";
 /**
  * Botão de CTA. O texto e a mensagem vêm do cadastro em lib/buttons.ts,
  * com os ajustes feitos no admin (Botões).
- * - Página inicial: abre o WhatsApp com a mensagem escolhida.
+ * - Página inicial: abre o WhatsApp com a mensagem escolhida (ou a janela de escolha).
  * - /captura: leva ao agendamento de visita.
  */
 export function CtaButton({
@@ -28,6 +29,7 @@ export function CtaButton({
   const mode = useMode();
   const { whatsapp, buttons } = useSite();
   const router = useRouter();
+  const openChooser = useContactChooser();
   const b = resolveButton(slot, buttons);
 
   const text = mode === "captura" ? b.captura || b.site : b.site || b.captura;
@@ -60,7 +62,17 @@ export function CtaButton({
     );
   }
 
-  const href = whatsappUrl(whatsapp.number, whatsapp.messages[b.message]);
+  // "escolha" abre a janela Não sou aluno / Já sou aluno (só existe na página inicial).
+  if (b.message === "escolha" && openChooser) {
+    return (
+      <button type="button" className={cls} onClick={() => openChooser(slot)}>
+        {inner}
+      </button>
+    );
+  }
+
+  const message = b.message === "escolha" ? "experimental" : b.message;
+  const href = whatsappUrl(whatsapp.number, whatsapp.messages[message]);
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={cls} onClick={() => trackWhatsappClick(`${slot} · ${text}`)}>
       {inner}

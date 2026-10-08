@@ -66,7 +66,7 @@ export const DEFAULTS: AllSettings = {
     messages: {
       experimental: "Olá! Vim pelo site e quero agendar uma aula experimental no CT Forma Fit.",
       matricula: "Olá! Vim pelo site e quero fazer minha matrícula no CT Forma Fit.",
-      aluno: "Olá! Já sou aluno(a) e gostaria de falar com a recepção.",
+      aluno: "Olá! Já sou aluno(a) do CT Forma Fit e gostaria de falar com a recepção.",
       contato: "Olá! Vim pelo site do CT Forma Fit e gostaria de mais informações.",
       conhecer: "Olá! Vim pelo site e quero conhecer a estrutura do CT Forma Fit.",
       agendamento: "Olá! Agendei uma visita no CT FormaFit pelo site.",

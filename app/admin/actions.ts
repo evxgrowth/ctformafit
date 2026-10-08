@@ -8,7 +8,7 @@ import { endSession, requireAdmin, startSession } from "@/lib/auth";
 import { getSettings, saveSetting } from "@/lib/settings";
 import { sendLeadToCrm, syncPendingLeads } from "@/lib/crm";
 import { onlyDigits, toWhatsappNumber } from "@/lib/phone";
-import { BUTTONS, MESSAGE_LABELS, type ButtonOverrides, type MessageKey } from "@/lib/buttons";
+import { ACTION_LABELS, BUTTONS, type ButtonAction, type ButtonOverrides } from "@/lib/buttons";
 
 export type ActionState = { ok?: boolean; error?: string; message?: string } | undefined;
 
@@ -86,11 +86,11 @@ export async function saveButtonsAction(_: ActionState, f: FormData): Promise<Ac
   for (const b of BUTTONS) {
     const site = txt(f, `${b.id}.site`, 60);
     const captura = txt(f, `${b.id}.captura`, 60);
-    const message = txt(f, `${b.id}.message`, 20) as MessageKey;
+    const message = txt(f, `${b.id}.message`, 20) as ButtonAction;
     const o: ButtonOverrides[string] = {};
     if (b.site && site && site !== b.site) o.site = site;
     if (b.captura && captura && captura !== b.captura) o.captura = captura;
-    if (b.site && message in MESSAGE_LABELS && message !== b.message) o.message = message;
+    if (b.site && message in ACTION_LABELS && message !== b.message) o.message = message;
     if (Object.keys(o).length) overrides[b.id] = o;
   }
   await saveSetting("buttons", overrides);

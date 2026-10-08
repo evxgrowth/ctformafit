@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
-import { BUTTONS, MESSAGE_LABELS, resolveButton, type MessageKey } from "@/lib/buttons";
+import { ACTION_LABELS, BUTTONS, resolveButton, type ButtonAction } from "@/lib/buttons";
 import { ActionForm, Card } from "@/components/admin/ui";
 import { inputCls } from "@/components/admin/styles";
 import { saveButtonsAction } from "../../actions";
 
 export const metadata = { title: "Botões" };
 
-const MESSAGE_KEYS = Object.keys(MESSAGE_LABELS) as MessageKey[];
+const ACTIONS = Object.keys(ACTION_LABELS) as ButtonAction[];
 
 export default async function BotoesPage() {
   const s = await getSettings();
@@ -18,8 +18,8 @@ export default async function BotoesPage() {
       <div>
         <h1 className="font-display text-4xl font-black uppercase italic text-white">Botões</h1>
         <p className="text-sm text-white/60">
-          Texto de cada botão de chamada do site e qual mensagem de WhatsApp ele abre. Na página inicial, todo botão abre o WhatsApp; na /captura, leva
-          ao agendamento de visita. O texto das mensagens se edita na tela{" "}
+          Texto de cada botão de chamada do site e qual mensagem de WhatsApp ele abre. Na página inicial, o botão abre o WhatsApp direto com uma mensagem ou
+          abre a janela de escolha (“Não sou aluno / Já sou aluno”); na /captura, leva ao agendamento de visita. O texto das mensagens se edita na tela{" "}
           <Link href="/admin/whatsapp" className="text-[#ff8a3d] underline">
             WhatsApp
           </Link>
@@ -34,7 +34,7 @@ export default async function BotoesPage() {
               {BUTTONS.filter((b) => b.group === g).map((b) => {
                 const cur = resolveButton(b.id, s.buttons);
                 return (
-                  <div key={b.id} className="grid gap-3 py-4 first:pt-0 last:pb-0 lg:grid-cols-[180px_1fr_1fr_190px] lg:items-end">
+                  <div key={b.id} className="grid gap-3 py-4 first:pt-0 last:pb-0 lg:grid-cols-[170px_1fr_1fr_250px] lg:items-end">
                     <p className="text-sm font-semibold text-white lg:pb-2.5">{b.place}</p>
 
                     {b.site ? (
@@ -57,11 +57,11 @@ export default async function BotoesPage() {
 
                     {b.site ? (
                       <label className="block">
-                        <span className="text-xs text-white/50">Mensagem do WhatsApp</span>
+                        <span className="text-xs text-white/50">Ao clicar (página inicial)</span>
                         <select name={`${b.id}.message`} defaultValue={cur.message} className={`${inputCls} mt-1`}>
-                          {MESSAGE_KEYS.map((k) => (
+                          {ACTIONS.map((k) => (
                             <option key={k} value={k}>
-                              {MESSAGE_LABELS[k]}
+                              {k === "escolha" ? ACTION_LABELS[k] : `Mensagem: ${ACTION_LABELS[k]}`}
                             </option>
                           ))}
                         </select>

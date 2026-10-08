@@ -12,6 +12,7 @@ import { Location } from "./Location";
 import { Reviews } from "./Reviews";
 import { Faq } from "./Faq";
 import { FinalCta, Footer, Steps } from "./Closing";
+import { ContactChooser } from "../ContactChooser";
 
 function JsonLd({ phone }: { phone: string }) {
   const gym = {
@@ -66,7 +67,7 @@ function JsonLd({ phone }: { phone: string }) {
 
 export async function Landing({ mode }: { mode: SiteMode }) {
   const settings = mode === "site" ? await getSettings() : null;
-  return (
+  const page = (
     <ModeProvider mode={mode}>
       {settings && <JsonLd phone={settings.whatsapp.number} />}
       <Header />
@@ -86,4 +87,6 @@ export async function Landing({ mode }: { mode: SiteMode }) {
       <Footer mode={mode} />
     </ModeProvider>
   );
+  // Janela de escolha e botão flutuante do WhatsApp: só na página inicial.
+  return mode === "site" ? <ContactChooser>{page}</ContactChooser> : page;
 }

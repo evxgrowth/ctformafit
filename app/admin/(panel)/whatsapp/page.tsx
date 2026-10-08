@@ -14,8 +14,14 @@ export default async function WhatsappPage() {
   const s = await getSettings();
   const national = s.whatsapp.number.replace(/^55/, "");
   // Quais botões da página inicial usam cada mensagem (conforme o que está salvo em Botões).
-  const usedBy = (key: MessageKey) =>
-    BUTTONS.filter((b) => b.site && resolveButton(b.id, s.buttons).message === key).map((b) => `“${resolveButton(b.id, s.buttons).site}” (${b.place.toLowerCase()})`);
+  const usedBy = (key: MessageKey) => {
+    const list = BUTTONS.filter((b) => b.site && resolveButton(b.id, s.buttons).message === key).map(
+      (b) => `“${resolveButton(b.id, s.buttons).site}” (${b.place.toLowerCase()})`,
+    );
+    if (key === "experimental") list.unshift("opção “Não sou aluno” da janela de escolha (botão flutuante e botões “Entrar em contato”)");
+    if (key === "aluno") list.unshift("opção “Já sou aluno” da janela de escolha (botão flutuante e botões “Entrar em contato”)");
+    return list;
+  };
   return (
     <div className="max-w-3xl space-y-6">
       <div>
