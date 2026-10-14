@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/admin/AuthForm";
 import { setupAction } from "../actions";
 import { db, dbConfigured } from "@/lib/db";
+import { DbDown } from "@/components/admin/DbDown";
 
 export const metadata: Metadata = { title: "Primeiro acesso", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -11,7 +12,8 @@ export default async function SetupPage() {
   if (!dbConfigured()) {
     return <p className="p-10 text-white">Configure as variáveis do Supabase na Vercel (veja o README) para usar o admin.</p>;
   }
-  const { count } = await db().from("admins").select("id", { count: "exact", head: true });
+  const { count, error } = await db().from("admins").select("id", { count: "exact", head: true });
+  if (error) return <DbDown detail={error.message} />;
   if (count) redirect("/admin/login");
   return (
     <AuthForm

@@ -28,7 +28,8 @@ function refreshSite() {
 export async function loginAction(_: ActionState, f: FormData): Promise<ActionState> {
   const email = txt(f, "email", 200).toLowerCase();
   const password = String(f.get("password") ?? "");
-  const { data: admin } = await db().from("admins").select("*").eq("email", email).maybeSingle();
+  const { data: admin, error: dbError } = await db().from("admins").select("*").eq("email", email).maybeSingle();
+  if (dbError) return { error: "Banco de dados fora do ar. Tente de novo em alguns minutos." };
   if (!admin || !(await bcrypt.compare(password, admin.password_hash))) return { error: "E-mail ou senha incorretos." };
   await db().from("admins").update({ last_login_at: new Date().toISOString() }).eq("id", admin.id);
   await startSession({ sub: admin.id, email: admin.email, name: admin.name });
@@ -36,7 +37,8 @@ export async function loginAction(_: ActionState, f: FormData): Promise<ActionSt
 }
 
 export async function setupAction(_: ActionState, f: FormData): Promise<ActionState> {
-  const { count } = await db().from("admins").select("id", { count: "exact", head: true });
+  const { count, error: countError } = await db().from("admins").select("id", { count: "exact", head: true });
+  if (countError) return { error: "Banco de dados fora do ar. Tente de novo em alguns minutos." };
   if ((count ?? 0) > 0) return { error: "O primeiro administrador já foi criado. Faça login." };
   const name = txt(f, "name", 120);
   const email = txt(f, "email", 200).toLowerCase();

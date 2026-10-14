@@ -79,9 +79,16 @@ export async function POST(req: NextRequest) {
         user_agent: info.userAgent?.slice(0, 300) ?? null,
         ip: info.ip ?? null,
       });
+  const whatsappLink = () =>
+    whatsappUrl(
+      s.whatsapp.number,
+      fillMessage(s.whatsapp.messages.agendamento, { nome: name.split(/\s+/)[0], dia: dayLabel(date), hora: hourLabel(hour) }),
+    );
+
   if (res.error) {
-    console.error("[confirm]", res.error);
-    return NextResponse.json({ ok: false, error: "Não conseguimos salvar agora. Tente de novo." }, { status: 500 });
+    // Banco fora do ar: não perde o contato. A pessoa segue para o WhatsApp mesmo assim.
+    console.error("[confirm] não salvou, seguindo para o WhatsApp:", res.error);
+    return NextResponse.json({ ok: true, saved: false, whatsapp: whatsappLink(), label: `${dayLabel(date)} às ${hourLabel(hour)}` });
   }
 
   if (!existing?.completed) {
@@ -117,10 +124,5 @@ export async function POST(req: NextRequest) {
     ]);
   });
 
-  const text = fillMessage(s.whatsapp.messages.agendamento, {
-    nome: name.split(/\s+/)[0],
-    dia: dayLabel(date),
-    hora: hourLabel(hour),
-  });
-  return NextResponse.json({ ok: true, whatsapp: whatsappUrl(s.whatsapp.number, text), label: `${dayLabel(date)} às ${hourLabel(hour)}` });
+  return NextResponse.json({ ok: true, whatsapp: whatsappLink(), label: `${dayLabel(date)} às ${hourLabel(hour)}` });
 }
