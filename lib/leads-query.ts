@@ -8,7 +8,7 @@ export const LEAD_COLUMNS =
 
 export function leadsQuery(f: LeadFilters, opts: { count?: boolean } = {}) {
   let q = db()
-    .from("leads")
+    .from("ctf_leads")
     .select(LEAD_COLUMNS, opts.count ? { count: "exact" } : undefined)
     .order("created_at", { ascending: false });
 

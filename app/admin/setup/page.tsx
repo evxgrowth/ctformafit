@@ -12,7 +12,7 @@ export default async function SetupPage() {
   if (!dbConfigured()) {
     return <p className="p-10 text-white">Configure as variáveis do Supabase na Vercel (veja o README) para usar o admin.</p>;
   }
-  const { count, error } = await db().from("admins").select("id", { count: "exact", head: true });
+  const { count, error } = await db().from("ctf_admins").select("id", { count: "exact", head: true });
   if (error) return <DbDown detail={error.message} />;
   if (count) redirect("/admin/login");
   return (

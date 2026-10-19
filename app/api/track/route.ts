@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const ua = info.userAgent || "";
   if (/bot|crawl|spider|slurp|facebookexternalhit|lighthouse|headless/i.test(ua)) return NextResponse.json({ ok: true });
 
-  await db().from("events").insert({
+  await db().from("ctf_events").insert({
     type,
     page: str(body.page, 200),
     label: str(body.label, 120),

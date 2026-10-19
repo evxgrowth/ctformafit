@@ -28,16 +28,16 @@ function refreshSite() {
 export async function loginAction(_: ActionState, f: FormData): Promise<ActionState> {
   const email = txt(f, "email", 200).toLowerCase();
   const password = String(f.get("password") ?? "");
-  const { data: admin, error: dbError } = await db().from("admins").select("*").eq("email", email).maybeSingle();
+  const { data: admin, error: dbError } = await db().from("ctf_admins").select("*").eq("email", email).maybeSingle();
   if (dbError) return { error: "Banco de dados fora do ar. Tente de novo em alguns minutos." };
   if (!admin || !(await bcrypt.compare(password, admin.password_hash))) return { error: "E-mail ou senha incorretos." };
-  await db().from("admins").update({ last_login_at: new Date().toISOString() }).eq("id", admin.id);
+  await db().from("ctf_admins").update({ last_login_at: new Date().toISOString() }).eq("id", admin.id);
   await startSession({ sub: admin.id, email: admin.email, name: admin.name });
   redirect("/admin");
 }
 
 export async function setupAction(_: ActionState, f: FormData): Promise<ActionState> {
-  const { count, error: countError } = await db().from("admins").select("id", { count: "exact", head: true });
+  const { count, error: countError } = await db().from("ctf_admins").select("id", { count: "exact", head: true });
   if (countError) return { error: "Banco de dados fora do ar. Tente de novo em alguns minutos." };
   if ((count ?? 0) > 0) return { error: "O primeiro administrador já foi criado. Faça login." };
   const name = txt(f, "name", 120);
@@ -46,7 +46,7 @@ export async function setupAction(_: ActionState, f: FormData): Promise<ActionSt
   if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Preencha nome e e-mail válidos." };
   if (password.length < 8) return { error: "A senha precisa ter pelo menos 8 caracteres." };
   const { data, error } = await db()
-    .from("admins")
+    .from("ctf_admins")
     .insert({ name, email, password_hash: await bcrypt.hash(password, 10) })
     .select()
     .single();
@@ -249,10 +249,10 @@ export async function saveScheduleAction(_: ActionState, f: FormData): Promise<A
 export async function setOverrideAction(date: string, hour: number | null, kind: "block" | "open" | null) {
   await requireAdmin();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-  let del = db().from("availability_overrides").delete().eq("date", date);
+  let del = db().from("ctf_availability_overrides").delete().eq("date", date);
   del = hour === null ? del.is("hour", null) : del.eq("hour", hour);
   await del;
-  if (kind) await db().from("availability_overrides").insert({ date, hour, kind });
+  if (kind) await db().from("ctf_availability_overrides").insert({ date, hour, kind });
   revalidatePath("/admin/agenda");
 }
 
@@ -260,7 +260,7 @@ export async function setOverrideAction(date: string, hour: number | null, kind:
 
 export async function resendLeadAction(id: string): Promise<ActionState> {
   await requireAdmin();
-  await db().from("leads").update({ crm_attempts: 0 }).eq("id", id);
+  await db().from("ctf_leads").update({ crm_attempts: 0 }).eq("id", id);
   const r = await sendLeadToCrm(id);
   revalidatePath("/admin/leads");
   return r.ok ? { ok: true, message: "Enviado ao CRM." } : { error: r.error };
@@ -268,7 +268,7 @@ export async function resendLeadAction(id: string): Promise<ActionState> {
 
 export async function deleteLeadAction(id: string) {
   await requireAdmin();
-  await db().from("leads").delete().eq("id", id);
+  await db().from("ctf_leads").delete().eq("id", id);
   revalidatePath("/admin/leads");
 }
 
@@ -281,7 +281,7 @@ export async function addAdminAction(_: ActionState, f: FormData): Promise<Actio
   const password = String(f.get("password") ?? "");
   if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Preencha nome e e-mail válidos." };
   if (password.length < 8) return { error: "A senha precisa ter pelo menos 8 caracteres." };
-  const { error } = await db().from("admins").insert({ name, email, password_hash: await bcrypt.hash(password, 10) });
+  const { error } = await db().from("ctf_admins").insert({ name, email, password_hash: await bcrypt.hash(password, 10) });
   if (error) return { error: error.code === "23505" ? "Já existe um administrador com esse e-mail." : error.message };
   revalidatePath("/admin/usuarios");
   return { ok: true, message: `${name} agora é administrador. Envie o e-mail e a senha por um canal seguro.` };
@@ -290,9 +290,9 @@ export async function addAdminAction(_: ActionState, f: FormData): Promise<Actio
 export async function removeAdminAction(id: string): Promise<ActionState> {
   const me = await requireAdmin();
   if (id === me.sub) return { error: "Você não pode remover a si mesmo." };
-  const { count } = await db().from("admins").select("id", { count: "exact", head: true });
+  const { count } = await db().from("ctf_admins").select("id", { count: "exact", head: true });
   if ((count ?? 0) <= 1) return { error: "Precisa existir pelo menos um administrador." };
-  await db().from("admins").delete().eq("id", id);
+  await db().from("ctf_admins").delete().eq("id", id);
   revalidatePath("/admin/usuarios");
   return { ok: true };
 }
@@ -302,8 +302,8 @@ export async function changePasswordAction(_: ActionState, f: FormData): Promise
   const current = String(f.get("current") ?? "");
   const next = String(f.get("next") ?? "");
   if (next.length < 8) return { error: "A nova senha precisa ter pelo menos 8 caracteres." };
-  const { data } = await db().from("admins").select("password_hash").eq("id", me.sub).single();
+  const { data } = await db().from("ctf_admins").select("password_hash").eq("id", me.sub).single();
   if (!data || !(await bcrypt.compare(current, data.password_hash))) return { error: "Senha atual incorreta." };
-  await db().from("admins").update({ password_hash: await bcrypt.hash(next, 10) }).eq("id", me.sub);
+  await db().from("ctf_admins").update({ password_hash: await bcrypt.hash(next, 10) }).eq("id", me.sub);
   return { ok: true, message: "Senha alterada." };
 }

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const info = clientInfo(req);
 
   const { data: existing } = await db()
-    .from("leads")
+    .from("ctf_leads")
     .select("id, completed, lead_event_sent, crm_stage, crm_status, name, phone")
     .eq("id", id)
     .maybeSingle();
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   if (!existing) {
     const { error } = await db()
-      .from("leads")
+      .from("ctf_leads")
       .insert({
         id,
         ...fields,
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false }, { status: 500 });
     }
   } else {
-    const { error } = await db().from("leads").update(fields).eq("id", id);
+    const { error } = await db().from("ctf_leads").update(fields).eq("id", id);
     if (error) {
       console.error("[draft update]", error);
       return NextResponse.json({ ok: false }, { status: 500 });
@@ -95,8 +95,8 @@ export async function POST(req: NextRequest) {
   const leadEventId = str(b.leadEventId, 80);
   const isLead = Boolean(name && phone && isValidBrPhone(phone));
   if (isLead && leadEventId && !existing?.lead_event_sent) {
-    await db().from("leads").update({ lead_event_sent: true }).eq("id", id);
-    await db().from("events").insert({
+    await db().from("ctf_leads").update({ lead_event_sent: true }).eq("id", id);
+    await db().from("ctf_events").insert({
       type: "lead",
       page: str(b.page, 200),
       session_id: str(b.sessionId, 64),

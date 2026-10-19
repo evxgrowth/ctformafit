@@ -9,7 +9,7 @@ export async function getAdmin(): Promise<SessionPayload | null> {
   const session = await verifySession(jar.get(SESSION_COOKIE)?.value);
   if (!session) return null;
   // Confere se o admin ainda existe (removido = sessão cai).
-  const { data } = await db().from("admins").select("id").eq("id", session.sub).maybeSingle();
+  const { data } = await db().from("ctf_admins").select("id").eq("id", session.sub).maybeSingle();
   return data ? session : null;
 }
 

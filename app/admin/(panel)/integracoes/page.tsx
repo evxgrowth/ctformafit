@@ -14,9 +14,9 @@ export default async function IntegracoesPage() {
   const last4 = (v: string) => (v ? v.trim().slice(-4) : null);
   const tokenFromEnv = Boolean(process.env.EVX_CRM_TOKEN && s.secrets.crm_token === process.env.EVX_CRM_TOKEN);
   const [lastSent, errors, pending] = await Promise.all([
-    db().from("leads").select("crm_sent_at").not("crm_sent_at", "is", null).order("crm_sent_at", { ascending: false }).limit(1).maybeSingle(),
-    db().from("leads").select("id", { count: "exact", head: true }).eq("crm_status", "erro"),
-    db().from("leads").select("id", { count: "exact", head: true }).eq("crm_status", "pendente").not("phone", "is", null),
+    db().from("ctf_leads").select("crm_sent_at").not("crm_sent_at", "is", null).order("crm_sent_at", { ascending: false }).limit(1).maybeSingle(),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("crm_status", "erro"),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("crm_status", "pendente").not("phone", "is", null),
   ]);
   return (
     <div className="max-w-3xl space-y-6">

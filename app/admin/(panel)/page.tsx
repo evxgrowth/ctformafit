@@ -77,12 +77,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const to = `${addDays(today, 1)}T00:00:00-03:00`;
 
   const [dailyRes, breakRes, leadsTotal, leadsValid, schedules, pendingCrm] = await Promise.all([
-    db().rpc("analytics_daily", { p_from: from, p_to: to }),
-    db().rpc("analytics_breakdown", { p_from: from, p_to: to }),
-    db().from("leads").select("id", { count: "exact", head: true }).gte("created_at", from).lt("created_at", to),
-    db().from("leads").select("id", { count: "exact", head: true }).gte("created_at", from).lt("created_at", to).not("phone", "is", null).not("name", "is", null),
-    db().from("leads").select("id", { count: "exact", head: true }).eq("completed", true).gte("completed_at", from).lt("completed_at", to),
-    db().from("leads").select("id", { count: "exact", head: true }).eq("crm_status", "erro"),
+    db().rpc("ctf_analytics_daily", { p_from: from, p_to: to }),
+    db().rpc("ctf_analytics_breakdown", { p_from: from, p_to: to }),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).gte("created_at", from).lt("created_at", to),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).gte("created_at", from).lt("created_at", to).not("phone", "is", null).not("name", "is", null),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("completed", true).gte("completed_at", from).lt("completed_at", to),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("crm_status", "erro"),
   ]);
 
   const daily = (dailyRes.data ?? []) as Daily[];
@@ -149,7 +149,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
       {rpcError && (
         <p className="border-l-2 border-amber-500 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
-          As funções de analytics não foram encontradas no banco. Rode novamente o arquivo supabase/schema.sql no Supabase.
+          As funções de analytics não foram encontradas no banco. Aplique a migração supabase/migrations/20261019020000_ctf_init.sql no projeto landing-pages.
         </p>
       )}
       {(pendingCrm.count ?? 0) > 0 && (

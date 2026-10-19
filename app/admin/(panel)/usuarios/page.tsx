@@ -10,7 +10,7 @@ export const metadata = { title: "Admins" };
 
 export default async function UsuariosPage() {
   const me = await requireAdmin();
-  const { data: admins } = await db().from("admins").select("id, name, email, created_at, last_login_at").order("created_at");
+  const { data: admins } = await db().from("ctf_admins").select("id, name, email, created_at, last_login_at").order("created_at");
   return (
     <div className="max-w-3xl space-y-6">
       <div>

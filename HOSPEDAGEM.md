@@ -15,26 +15,10 @@ Passo a passo para publicar em **www.ctformafit.com.br** usando Supabase (banco 
 
 ## Passo 1: Banco de dados (Supabase)
 
-1. Entre no Supabase e clique em **New project**.
-2. Preencha:
-   - **Name:** `ctformafit`
-   - **Database password:** clique em *Generate a password* e guarde num local seguro
-   - **Region:** **South America (São Paulo)**
-3. Clique em **Create new project** e espere uns 2 minutos.
-4. No menu da esquerda, abra **SQL Editor** e clique em **New query**.
-5. Abra o arquivo `supabase/schema.sql` deste projeto, copie **todo** o conteúdo, cole no editor e clique em **Run**. Tem que aparecer *Success. No rows returned*.
-6. Agora copie **2 informações** e guarde num bloco de notas:
+O CT Forma Fit usa o projeto Supabase compartilhado **landing-pages** (org EVX GROWTH STUDIO), onde ficam as landing pages de todos os clientes. Tudo do CT Forma Fit tem o prefixo **`ctf_`** (tabelas `ctf_leads`, `ctf_admins`, `ctf_events`, `ctf_settings`, `ctf_availability_overrides` e funções `ctf_analytics_*`). O schema está em `supabase/migrations/20261019020000_ctf_init.sql` e **já foi aplicado**.
 
-   **a) A URL do projeto.** O jeito mais fácil: olhe o endereço do navegador enquanto está dentro do projeto. Ele fica assim:
-   `https://supabase.com/dashboard/project/abcdefghijklmnop`
-   Pegue esse código do final (`abcdefghijklmnop`) e monte a URL assim:
-   `https://abcdefghijklmnop.supabase.co`
-   (Ela também aparece no botão **Connect**, no topo da página do projeto, e em **Project Settings > Data API > Project URL**.)
-
-   **b) A chave secreta.** Vá em **Project Settings** (engrenagem no fim do menu da esquerda) > **API Keys**.
-   - Se existir a seção **Secret keys**, copie a chave que começa com `sb_secret_...` (clique no ícone de olho ou de copiar).
-   - Se não existir, abra a aba **Legacy API Keys** e copie a **service_role** (clique em *Reveal*).
-   - **Nunca** use a chave `anon` ou `publishable`. E nunca mande a chave secreta para ninguém.
+- **URL do projeto:** `https://gylyeuiveaofldmtmqbd.supabase.co`
+- **Chave secreta:** em **Project Settings > API Keys > Secret keys**, use a chave `ctformafit` (`sb_secret_...`). Cada cliente tem a sua chave secreta, para poder revogar uma sem derrubar os outros sites. **Nunca** use a chave `publishable`, e nunca mande a chave secreta para ninguém.
 
 ## Passo 2: Enviar o código para o GitHub (pelo navegador)
 
@@ -119,16 +103,10 @@ Guarde o valor do `CRON_SECRET`: você vai usar no Passo 7.
 
 Sem este passo, quem não conclui o agendamento é enviado ao CRM quando o site recebe visitas e uma vez por dia. Com ele, o envio acontece a cada 5 minutos.
 
-1. No Supabase, vá em **Database** e depois em **Extensions**. Ative **pg_cron** e **pg_net**.
-2. Abra **SQL Editor > New query**, cole o código abaixo, troque `SEU_CRON_SECRET` pelo valor do `CRON_SECRET` do Passo 3 e clique em **Run**:
+**Já está ativo** no projeto landing-pages: o job `ctf-crm-sync` (pg_cron) chama `https://www.ctformafit.com.br/api/cron/crm-sync` a cada 5 minutos. O `CRON_SECRET` fica guardado no Vault do Supabase com o nome `ctf_cron_secret` e tem que ser igual ao da Vercel. Se trocar um, troque o outro:
 
 ```sql
-select cron.schedule('crm-sync', '*/5 * * * *', $$
-  select net.http_get(
-    url := 'https://www.ctformafit.com.br/api/cron/crm-sync',
-    headers := jsonb_build_object('Authorization', 'Bearer SEU_CRON_SECRET')
-  );
-$$);
+select vault.update_secret((select id from vault.secrets where name = 'ctf_cron_secret'), 'NOVO_VALOR');
 ```
 
 ## Passo 8: Pixels (quando as campanhas forem começar)
@@ -166,5 +144,5 @@ Toda alteração feita no GitHub publica sozinha na Vercel em 1 ou 2 minutos. Pa
 |---|---|
 | Domínio "Invalid Configuration" por mais de 24h | Confira se os valores do A e do CNAME no Registro.br são exatamente os que a Vercel mostra, e se não sobrou outro registro A/`www` antigo. |
 | `/admin` mostra "Configure as variáveis do Supabase" | Falta alguma variável na Vercel. Depois de corrigir, vá em **Deployments > ... > Redeploy**. |
-| Painel avisa "funções de analytics não encontradas" | Rode de novo o `supabase/schema.sql` no SQL Editor. |
+| Painel avisa "funções de analytics não encontradas" | Confira se as funções `ctf_analytics_*` existem no projeto landing-pages (migração `supabase/migrations/20261019020000_ctf_init.sql`). |
 | Leads com **Erro** no CRM | Passe o mouse no erro. 401 = token errado ou desativado no EVX. Corrija e clique em **Reenviar ao CRM**. |

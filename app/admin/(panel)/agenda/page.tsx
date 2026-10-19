@@ -19,7 +19,7 @@ export default async function AgendaPage() {
   const overrides = await getOverrides(first, last);
 
   const { data: booked } = await db()
-    .from("leads")
+    .from("ctf_leads")
     .select("visit_date, visit_hour")
     .eq("completed", true)
     .gte("visit_date", first)

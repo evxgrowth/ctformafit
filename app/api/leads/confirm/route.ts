@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   const a = (b.attribution ?? {}) as Record<string, unknown>;
   const now = new Date().toISOString();
 
-  const { data: existing } = await db().from("leads").select("id, completed").eq("id", id).maybeSingle();
+  const { data: existing } = await db().from("ctf_leads").select("id, completed").eq("id", id).maybeSingle();
   const fields = {
     name,
     phone,
@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
     ga_client_id: gaClientIdFromCookie(info.ga) ?? null,
   };
   const res = existing
-    ? await db().from("leads").update(fields).eq("id", id)
-    : await db().from("leads").insert({
+    ? await db().from("ctf_leads").update(fields).eq("id", id)
+    : await db().from("ctf_leads").insert({
         id,
         ...fields,
         source_page: str(b.page, 200) ?? "/captura",
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!existing?.completed) {
-    await db().from("events").insert({
+    await db().from("ctf_events").insert({
       type: "schedule",
       page: str(b.page, 200),
       session_id: str(b.sessionId, 64),

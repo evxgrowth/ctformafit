@@ -77,10 +77,10 @@ function buildPayload(lead: LeadRow, s: AllSettings) {
 /** Envia um lead ao EVX CRM e grava o resultado (crm_status / crm_error). */
 export async function sendLeadToCrm(leadId: string, settings?: AllSettings) {
   const s = settings ?? (await getSettings());
-  const { data: lead } = await db().from("leads").select("*").eq("id", leadId).maybeSingle<LeadRow>();
+  const { data: lead } = await db().from("ctf_leads").select("*").eq("id", leadId).maybeSingle<LeadRow>();
   if (!lead) return { ok: false, error: "Lead não encontrado" };
 
-  const update = (fields: Record<string, unknown>) => db().from("leads").update(fields).eq("id", leadId);
+  const update = (fields: Record<string, unknown>) => db().from("ctf_leads").update(fields).eq("id", leadId);
 
   if (!s.crm.enabled) return { ok: false, error: "Integração com o CRM desativada" };
   const token = s.secrets.crm_token.trim();
@@ -163,7 +163,7 @@ export async function syncPendingLeads(limit = 25) {
   const ids = new Set<string>();
 
   const completed = await db()
-    .from("leads")
+    .from("ctf_leads")
     .select("id, crm_next_try_at")
     .eq("completed", true)
     .in("crm_status", ["pendente", "erro"])
@@ -175,7 +175,7 @@ export async function syncPendingLeads(limit = 25) {
 
   if (s.crm.send_incomplete) {
     const incomplete = await db()
-      .from("leads")
+      .from("ctf_leads")
       .select("id")
       .eq("completed", false)
       .in("crm_status", ["pendente", "erro"])

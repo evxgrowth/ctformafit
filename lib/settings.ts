@@ -120,7 +120,7 @@ function merge<T>(base: T, value: unknown): T {
 export async function getSettings(): Promise<AllSettings> {
   if (!dbConfigured()) return structuredClone(DEFAULTS);
   try {
-    const { data, error } = await db().from("settings").select("key, value");
+    const { data, error } = await db().from("ctf_settings").select("key, value");
     if (error) throw error;
     const result = structuredClone(DEFAULTS);
     for (const row of data ?? []) {
@@ -137,7 +137,7 @@ export async function getSettings(): Promise<AllSettings> {
 
 export async function saveSetting<K extends Key>(key: K, value: AllSettings[K]) {
   const { error } = await db()
-    .from("settings")
+    .from("ctf_settings")
     .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" });
   if (error) throw error;
 }
