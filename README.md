@@ -19,7 +19,7 @@ O passo a passo completo (Supabase, GitHub, Vercel, domínio, primeiro acesso e 
 ## Envio automático ao EVX CRM
 
 - **Agendamento confirmado** vai ao CRM na hora, com as etiquetas de "Visita agendada".
-- **Quem digitou nome e WhatsApp e não confirmou** vai depois do tempo de espera configurado (padrão: 15 minutos), com a etiqueta "Agendamento incompleto".
+- **Quem digitou nome e WhatsApp e não confirmou** vai quando fecha a aba ou depois de 30 minutos sem mexer no formulário (tempo ajustável no painel), com a etiqueta "Agendamento incompleto".
 - Falhas temporárias (429/500) são reenviadas sozinhas: 1, 5, 15, 60 e 240 minutos.
 - Em **Leads** há o status de cada envio e o botão **Reenviar ao CRM**.
 

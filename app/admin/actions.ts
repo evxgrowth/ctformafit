@@ -150,7 +150,7 @@ export async function saveCrmAction(_: ActionState, f: FormData): Promise<Action
     tags_completed: list(txt(f, "tags_completed", 800)),
     tags_incomplete: list(txt(f, "tags_incomplete", 800)),
     send_incomplete: f.get("send_incomplete") === "on",
-    incomplete_delay_min: Math.min(240, Math.max(5, Number(txt(f, "incomplete_delay_min", 5)) || 15)),
+    incomplete_delay_min: Math.min(240, Math.max(5, Number(txt(f, "incomplete_delay_min", 5)) || 30)),
   });
   if (token !== KEEP) await saveSetting("secrets", { ...s.secrets, crm_token: token });
   revalidatePath("/admin/integracoes");

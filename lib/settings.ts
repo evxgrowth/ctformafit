@@ -91,7 +91,7 @@ export const DEFAULTS: AllSettings = {
     tags_completed: ["Landing Page", "Visita agendada"],
     tags_incomplete: ["Landing Page", "Agendamento incompleto"],
     send_incomplete: true,
-    incomplete_delay_min: 15,
+    incomplete_delay_min: 30,
   },
   schedule: {
     weekdays: [1, 2, 3, 4, 5],

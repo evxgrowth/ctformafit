@@ -1,6 +1,7 @@
 import { NextResponse, after, type NextRequest } from "next/server";
 import { db, dbConfigured } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
+import { sendIncompleteOnLeave } from "@/lib/crm";
 import { sendConversions, gaClientIdFromCookie } from "@/lib/conversions";
 import { clientInfo, str } from "@/lib/request";
 import { isValidBrPhone, nationalDigits } from "@/lib/phone";
@@ -123,6 +124,8 @@ export async function POST(req: NextRequest) {
       });
     });
   }
+
+  if (b.left === true) after(() => sendIncompleteOnLeave(id).catch((e) => console.error("[crm leave]", e)));
 
   return NextResponse.json({ ok: true });
 }

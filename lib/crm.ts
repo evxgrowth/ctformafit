@@ -150,6 +150,16 @@ export async function sendLeadToCrm(leadId: string, settings?: AllSettings) {
   }
 }
 
+/** A pessoa fechou a aba sem concluir: manda o incompleto agora, sem esperar o tempo de inatividade. */
+export async function sendIncompleteOnLeave(leadId: string) {
+  const s = await getSettings();
+  if (!s.crm.enabled || !s.crm.send_incomplete || !s.secrets.crm_token) return;
+  const { data: lead } = await db().from("ctf_leads").select("completed, crm_status, name, phone").eq("id", leadId).maybeSingle();
+  if (!lead || lead.completed || !["pendente", "erro"].includes(lead.crm_status)) return;
+  if (!lead.name?.trim() || !lead.phone || !isValidBrPhone(lead.phone)) return;
+  await sendLeadToCrm(leadId, s);
+}
+
 /**
  * Processa a fila: agendamentos ainda não entregues, falhas temporárias
  * e leads que pararam no meio do formulário há mais de X minutos.

@@ -144,7 +144,7 @@ export default async function IntegracoesPage() {
             <input name="tags_incomplete" defaultValue={s.crm.tags_incomplete.join(", ")} className={inputCls} />
           </Field>
           <Toggle name="send_incomplete" defaultChecked={s.crm.send_incomplete} label="Enviar também quem não concluiu o agendamento" />
-          <Field label="Esperar quantos minutos antes de enviar um incompleto" hint="Dá tempo da pessoa terminar. Mínimo 15 é o recomendado: o CRM ignora o mesmo telefone por 10 minutos.">
+          <Field label="Minutos de inatividade para enviar um incompleto" hint="Tempo sem mexer no formulário. Se a pessoa fechar a aba, o envio é na hora.">
             <input name="incomplete_delay_min" type="number" min={5} max={240} defaultValue={s.crm.incomplete_delay_min} className={inputCls} />
           </Field>
         </ActionForm>

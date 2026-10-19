@@ -120,7 +120,7 @@ export function Scheduler() {
   );
 
   const flushDraft = useCallback(
-    (beacon = false) => {
+    (beacon = false, left = false) => {
       if (!leadId) return;
       const { form: f } = latest.current;
       const hasData = f.name.trim() || onlyDigits(f.phone) || f.email.trim();
@@ -128,7 +128,7 @@ export function Scheduler() {
       sentOnce.current = true;
       ls(LS_FORM, JSON.stringify({ id: leadId, ...f }));
 
-      const extra: Record<string, unknown> = {};
+      const extra: Record<string, unknown> = left ? { left: true } : {};
       const leadKey = `ff_lead_evt_${leadId}`;
       if (f.name.trim().length >= 2 && isValidBrPhone(f.phone) && !ls(leadKey)) {
         const eventId = `lead-${leadId}`;
@@ -153,14 +153,19 @@ export function Scheduler() {
   }, [flushDraft]);
 
   useEffect(() => {
+    // Trocar de app (aba oculta) só salva. Fechar a aba ou sair da página também avisa
+    // o servidor, que manda o lead incompleto ao CRM na hora.
     const onHide = () => {
       if (status === "idle") flushDraft(true);
     };
+    const onLeave = () => {
+      if (status === "idle") flushDraft(true, true);
+    };
     const onVis = () => document.visibilityState === "hidden" && onHide();
-    window.addEventListener("pagehide", onHide);
+    window.addEventListener("pagehide", onLeave);
     document.addEventListener("visibilitychange", onVis);
     return () => {
-      window.removeEventListener("pagehide", onHide);
+      window.removeEventListener("pagehide", onLeave);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [flushDraft, status]);
