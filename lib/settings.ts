@@ -85,7 +85,7 @@ export const DEFAULTS: AllSettings = {
   secrets: { meta_capi_token: "", ga4_api_secret: "", crm_token: "" },
   crm: {
     enabled: true,
-    endpoint: "https://wheblreswlcaevceakpn.supabase.co/functions/v1/landing-lead",
+    endpoint: "https://tyrdllhgrojmpvodbrth.supabase.co/functions/v1/landing-lead",
     interest: "Musculação",
     unit: "",
     tags_completed: ["Landing Page", "Visita agendada"],
