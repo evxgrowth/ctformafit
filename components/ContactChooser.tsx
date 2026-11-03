@@ -16,6 +16,7 @@ export function useContactChooser() {
 }
 
 const ease = [0.16, 1, 0.3, 1] as const;
+const HYROX_VIP_GROUP = "https://chat.whatsapp.com/If6TvMENnW06cKMUnNKZBA?s=qt&p=i&mlu=4&ilr=4&iam=2";
 
 /**
  * Janela de escolha + botão flutuante do WhatsApp.
@@ -65,6 +66,15 @@ export function ContactChooser({ children }: { children: React.ReactNode }) {
       href: whatsappUrl(whatsapp.number, whatsapp.messages.aluno),
       icon: <Icon.users className="h-7 w-7" />,
       primary: false,
+    },
+    {
+      key: "hyrox-vip",
+      title: "HYROX/HYBRID GRUPO VIP",
+      text: "Entre no grupo VIP da nova modalidade do CT",
+      href: HYROX_VIP_GROUP,
+      icon: <Icon.whatsapp className="h-7 w-7" />,
+      primary: false,
+      whatsappGreen: true,
     },
   ];
 
@@ -136,7 +146,7 @@ export function ContactChooser({ children }: { children: React.ReactNode }) {
                     >
                       <span
                         className={`grid h-14 w-14 shrink-0 place-items-center [clip-path:polygon(10%_0,100%_6%,90%_100%,0_94%)] ${
-                          o.primary ? "bg-ink text-orange" : "bg-orange text-ink"
+                          o.primary ? "bg-ink text-orange" : "whatsappGreen" in o ? "bg-[#25D366] text-white" : "bg-orange text-ink"
                         }`}
                       >
                         {o.icon}
