@@ -16,7 +16,7 @@ export function useContactChooser() {
 }
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const HYROX_VIP_GROUP = "https://chat.whatsapp.com/If6TvMENnW06cKMUnNKZBA?s=qt&p=i&mlu=4&ilr=4&iam=2";
+const HYROX_VIP_GROUP = "https://chat.whatsapp.com/Dn7UyY0dNU67O0OQCTWdG6?s=sw&p=i&mlu=4&ilr=4&iam=2";
 
 /**
  * Janela de escolha + botão flutuante do WhatsApp.
