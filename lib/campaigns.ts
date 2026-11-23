@@ -15,6 +15,7 @@ export const CAMPAIGNS: Record<
     waMessage: string; // {nome} {dia} {hora}
     pixelCustomEvent: string;
     pixelFormName: string;
+    lastDay: string; // último dia de aula experimental com voucher (AAAA-MM-DD)
   }
 > = {
   black26: {
@@ -24,10 +25,11 @@ export const CAMPAIGNS: Record<
     doneName: "/black26/agendou",
     label: "Black Friday 26",
     plan: "Plano Anual Musculação + Hyrox",
-    note: "Veio da página Black Friday (/black26). Interesse: Plano Anual Musculação + Hyrox.",
-    waMessage: "Olá! Sou {nome}, vim pela Black Friday do CT Forma Fit e agendei minha aula experimental para {dia} às {hora}. Quero saber do Plano Anual Musculação + Hyrox.",
+    note: "Veio da página Black Friday (/black26). Agendou aula experimental e recebeu o voucher BLACK26 (Plano Anual Musculação + Hyrox por R$ 139,90/mês, válido até 29/11).",
+    waMessage: "Olá! Sou {nome}, agendei minha aula experimental para {dia} às {hora} pela Black Friday do CT Forma Fit. Quero confirmar e garantir meu voucher.",
     pixelCustomEvent: "FormularioBlack26",
     pixelFormName: "Formulário Black 26",
+    lastDay: "2026-11-29",
   },
 };
 
@@ -41,14 +43,21 @@ export const BLACK_PLAN = {
   sub: "Musculação + Hyrox",
   from: "R$ 183,00",
   price: "R$ 139,90",
-  installments: "Pagamento em até 12x",
-  period: "Campanha de 23/11 a 29/11 · Vagas limitadas",
+  perMonth: "/mês",
+  installments: "Em até 12x",
+  code: "BLACK26",
+  validUntil: "29/11",
+  period: "Voucher válido até 29/11 · Vagas limitadas",
   benefits: [
     "Musculação liberada o ano inteiro",
     "Treinos de Hyrox com acompanhamento",
     "Bioimpedância de última geração",
     "Cardio gigante e equipamentos novíssimos",
     "Estacionamento com segurança",
-    "Aula experimental antes de decidir",
+  ],
+  how: [
+    "Agende sua aula experimental grátis",
+    "Receba o voucher no seu WhatsApp",
+    "Treine e mostre o voucher na recepção",
   ],
 };

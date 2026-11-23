@@ -20,9 +20,9 @@ const STEPS = {
     { t: "Venha conhecer o CT", d: "A gente te mostra a estrutura inteira e tira todas as suas dúvidas." },
   ],
   black: [
-    { t: "Deixe seus dados", d: "Preencha nome, WhatsApp e e-mail e escolha o dia da sua aula experimental." },
-    { t: "Confirme com a equipe", d: "Você recebe a confirmação e fala com a gente no WhatsApp sobre o Plano Anual." },
-    { t: "Garanta a Black", d: "Venha treinar, conheça o CT e feche o Plano Anual Musculação + Hyrox." },
+    { t: "Agende a aula", d: "Escolha o dia e o horário da sua aula experimental grátis. Leva menos de 1 minuto." },
+    { t: "Receba o voucher", d: "A confirmação e o voucher Black chegam na hora no seu WhatsApp." },
+    { t: "Use na recepção", d: "Faça a aula, mostre o voucher na recepção e garanta o Plano Anual com o mega desconto." },
   ],
 };
 
@@ -32,7 +32,7 @@ export function Steps({ mode }: { mode: SiteMode }) {
       <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background:repeating-linear-gradient(-55deg,#000_0_2px,transparent_2px_22px)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <p className="eyebrow">Como começar</p>
+          <p className="eyebrow">Como funciona</p>
         </Reveal>
         <h2 className="display mt-3 text-[clamp(2.9rem,8vw,6rem)]">
           <MaskLines lines={["3 passos para", "sair do sofá."]} />
@@ -67,12 +67,12 @@ export function FinalCta({ mode = "captura" }: { mode?: SiteMode }) {
           <p className="eyebrow text-orange">Sua vez</p>
         </Reveal>
         <h2 className="display mx-auto mt-4 max-w-5xl text-[clamp(3.2rem,11vw,8.5rem)] text-white">
-          <MaskLines lines={black ? ["Seu melhor ano", <span key="v" className="text-orange">começa na</span>, "Black Friday."] : ["Sua melhor versão", <span key="v" className="text-orange">começa com</span>, "uma visita."]} />
+          <MaskLines lines={black ? ["Sua aula grátis", <span key="v" className="text-orange">e o voucher</span>, "te esperam."] : ["Sua melhor versão", <span key="v" className="text-orange">começa com</span>, "uma visita."]} />
         </h2>
         <Reveal delay={0.15}>
           <p className="mx-auto mt-6 max-w-xl text-lg text-bone/80 sm:text-xl">
             {black
-              ? "Plano Anual Musculação + Hyrox com condição exclusiva. Garanta o seu antes que a Black acabe."
+              ? "Agende agora, receba o voucher no WhatsApp e use na recepção até 29/11. Plano Anual Musculação + Hyrox por R$ 139,90/mês."
               : "Venha conhecer o CT Forma Fit por dentro. A gente te mostra tudo e você decide com calma."}
           </p>
         </Reveal>

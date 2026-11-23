@@ -46,13 +46,15 @@ export function BlackHero() {
           <Icon.bolt className="h-4 w-4" /> Black Friday 26
         </motion.p>
 
-        <motion.h1 {...up(0.15)} className="display mt-5 text-[clamp(3.3rem,15vw,9.5rem)] text-white">
-          Black no <span className="text-orange">CT Forma Fit</span>
+        <motion.h1 {...up(0.15)} className="display mt-5 text-[clamp(3rem,13vw,8.5rem)] text-white">
+          Aula grátis +
+          <br />
+          <span className="text-orange">voucher Black</span>
         </motion.h1>
 
         <motion.p {...up(0.3)} className="mt-5 max-w-xl text-lg leading-relaxed text-bone/90 sm:text-xl">
-          O melhor preço do ano no <b className="text-white">Plano Anual Musculação + Hyrox</b>. Treine o ano inteiro no CT gigante do Natal Moda Shopping, com
-          equipamentos novíssimos e tecnologia de ponta.
+          Agende sua aula experimental no CT Forma Fit e receba o voucher da Black no seu WhatsApp. Depois da aula, mostre na recepção e garanta o{" "}
+          <b className="text-white">Plano Anual Musculação + Hyrox por R$&nbsp;139,90/mês</b>.
         </motion.p>
 
         <motion.div {...up(0.45)} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
 
   const info = clientInfo(req);
   const campaign = parseCampaign(b.campaign);
+  if (campaign && date > CAMPAIGNS[campaign].lastDay) {
+    return NextResponse.json({ ok: false, error: "O voucher da Black vale para aulas até 29/11. Escolha outro dia." }, { status: 409 });
+  }
   const a = (b.attribution ?? {}) as Record<string, unknown>;
   const now = new Date().toISOString();
 

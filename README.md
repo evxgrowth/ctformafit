@@ -7,10 +7,14 @@ Site de **www.ctformafit.com.br**, feito em Next.js e hospedado na Vercel, com b
 | `/` | Landing principal (SEO). Todos os botões abrem o WhatsApp com a mensagem de cada botão. |
 | `/captura` | Mesma landing para anúncios (não indexada). Os botões levam ao agendamento de visita. |
 | `/captura/agendar` | Agendamento em 2 etapas. Salva nome e WhatsApp **enquanto a pessoa digita** e, ao confirmar, abre o WhatsApp. |
+| `/black26` | **Campanha Black Friday 26** (aula grátis + voucher). Ver [docs/TECNICO.md](docs/TECNICO.md). |
+| `/black26` | **Campanha Black Friday 26** (aula grátis + voucher). Ver [docs/TECNICO.md](docs/TECNICO.md). |
 | `/admin` | Painel: analytics, leads, agenda, WhatsApp, pixels/CRM e administradores. |
 | `/privacidade` | Política de privacidade (LGPD). |
 
 ---
+
+Documentação técnica completa: **[docs/TECNICO.md](docs/TECNICO.md)**.
 
 ## Publicação
 

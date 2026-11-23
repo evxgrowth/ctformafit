@@ -12,18 +12,18 @@ type Variant = "primary" | "ghost" | "dark";
 
 // Textos dos botões na landing da Black 26 (slot -> texto).
 const BLACK_TEXT: Record<string, string> = {
-  header: "Quero a Black",
-  "barra-fixa": "Garantir meu Plano Anual",
-  "hero-1": "Garantir meu Plano Anual",
-  "hero-2": "Ver o plano",
-  plano: "Quero esse plano agora",
-  pilares: "Quero aproveitar a Black",
-  tecnologia: "Quero ver de perto",
-  atendimento: "Agendar minha aula experimental",
-  localizacao: "Quero a Black Friday",
-  passos: "Garantir minha vaga na Black",
-  "final-1": "Garantir meu Plano Anual",
-  "final-2": "Ver o plano",
+  header: "Aula grátis",
+  "barra-fixa": "Agendar aula grátis",
+  "hero-1": "Agendar minha aula grátis",
+  "hero-2": "Ver o voucher",
+  plano: "Agendar e receber meu voucher",
+  pilares: "Agendar aula grátis",
+  tecnologia: "Quero conhecer o CT",
+  atendimento: "Agendar aula grátis",
+  localizacao: "Agendar aula grátis",
+  passos: "Agendar minha aula grátis",
+  "final-1": "Agendar minha aula grátis",
+  "final-2": "Ver o voucher",
 };
 
 /**
@@ -50,7 +50,7 @@ export function CtaButton({
   // Na Black os textos vêm de BLACK_TEXT (slots como "plano" não existem no cadastro de botões).
   const b = mode === "black" ? { site: "", captura: "", message: "experimental" as const } : resolveButton(slot, buttons);
 
-  const text = mode === "black" ? BLACK_TEXT[slot] ?? "Quero a Black Friday" : mode === "captura" ? b.captura || b.site : b.site || b.captura;
+  const text = mode === "black" ? BLACK_TEXT[slot] ?? "Agendar aula grátis" : mode === "captura" ? b.captura || b.site : b.site || b.captura;
   const cls = `btn btn-${variant} ${className}`;
   const inner = (
     <>
