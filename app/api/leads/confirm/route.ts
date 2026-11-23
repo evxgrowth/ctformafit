@@ -36,12 +36,17 @@ export async function POST(req: NextRequest) {
   const s = await getSettings();
   const today = nowInNatal().date;
   const overrides = await getOverrides(today, addDays(today, 45));
-  if (!date || !Number.isInteger(hour) || !isSlotAvailable(date, hour, s.schedule, overrides)) {
+  const early = parseCampaign(b.campaign);
+  const rules = early ? { ...s.schedule, min_lead_minutes: Math.max(s.schedule.min_lead_minutes, CAMPAIGNS[early].minLeadMinutes) } : s.schedule;
+  if (!date || !Number.isInteger(hour) || !isSlotAvailable(date, hour, rules, overrides)) {
     return NextResponse.json({ ok: false, error: "Esse horário não está mais disponível. Escolha outro, por favor." }, { status: 409 });
   }
 
   const info = clientInfo(req);
   const campaign = parseCampaign(b.campaign);
+  if (campaign && date > CAMPAIGNS[campaign].lastDay) {
+    return NextResponse.json({ ok: false, error: "O voucher da Black vale para aulas até 29/11. Escolha outro dia." }, { status: 409 });
+  }
   const a = (b.attribution ?? {}) as Record<string, unknown>;
   const now = new Date().toISOString();
 

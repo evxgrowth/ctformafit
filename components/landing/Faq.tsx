@@ -4,18 +4,27 @@ import { useState } from "react";
 import { useMode } from "../SiteProvider";
 import { FAQ as BASE_FAQ } from "./content";
 
-const BLACK_FAQ = [
-  {
-    q: "O que está incluso no Plano Anual da Black?",
-    a: "Musculação e treinos de Hyrox o ano inteiro, com bioimpedância, cardio e todo o conforto da nossa estrutura. Fale com a equipe para ver as condições vigentes.",
-  },
-  {
-    q: "Até quando vale a oferta da Black Friday?",
-    a: "A condição é por tempo limitado e sujeita à disponibilidade. Agende agora a sua aula experimental e garanta a sua vaga.",
-  },
-];
 import { Icon } from "./icons";
 import { MaskLines, Reveal } from "./motion";
+
+const BLACK_FAQ = [
+  {
+    q: "Como funciona o voucher da Black?",
+    a: "Você agenda sua aula experimental grátis e recebe o voucher no WhatsApp na hora. Depois da aula, é só apresentar o voucher na recepção para garantir o Plano Anual Musculação + Hyrox por R$ 139,90/mês, em até 12x.",
+  },
+  {
+    q: "Preciso pagar a aula experimental?",
+    a: "Não. A aula experimental é gratuita e sem compromisso. Você só fecha o plano se gostar.",
+  },
+  {
+    q: "Até quando posso usar o voucher?",
+    a: "O voucher vale até 29/11 e as vagas são limitadas. Por isso, as aulas com voucher podem ser agendadas até essa data.",
+  },
+  {
+    q: "O que está incluso no Plano Anual?",
+    a: "Musculação e treinos de Hyrox com acompanhamento o ano inteiro, com bioimpedância, cardio gigante e toda a estrutura do CT.",
+  },
+];
 
 export function Faq() {
   const FAQ = useMode() === "black" ? [...BLACK_FAQ, ...BASE_FAQ] : BASE_FAQ;

@@ -23,7 +23,7 @@ export function Agendou({ campaign }: { campaign?: "black26" }) {
     } catch {}
   }, []);
 
-  const wa = d.wa || whatsappUrl(whatsapp.number, black ? "Olá! Vim pela Black Friday do CT Forma Fit e quero saber do Plano Anual Musculação + Hyrox." : "Olá! Agendei uma visita no CT FormaFit pelo site.");
+  const wa = d.wa || whatsappUrl(whatsapp.number, black ? "Olá! Agendei minha aula experimental pela Black Friday do CT Forma Fit e quero confirmar." : "Olá! Agendei uma visita no CT FormaFit pelo site.");
 
   return (
     <main className="grain relative grid min-h-[100svh] place-items-center bg-ink px-4 py-16 text-center">
@@ -43,11 +43,19 @@ export function Agendou({ campaign }: { campaign?: "black26" }) {
         {d.label && <p className="mt-4 font-display text-2xl font-extrabold uppercase italic text-white">{d.label}</p>}
         <p className="mt-4 text-lg text-muted">
           {black
-            ? `Agora é só falar com a nossa equipe no WhatsApp para confirmar o horário e garantir a condição do ${CAMPAIGNS.black26.plan}.`
+            ? `Seu voucher Black está chegando no seu WhatsApp. Depois da aula, mostre ele na recepção e garanta o ${CAMPAIGNS.black26.plan} por R$ 139,90/mês.`
             : "Abrimos o WhatsApp da equipe em outra aba para você confirmar. Se não abriu, é só tocar no botão abaixo."}
         </p>
+        {black && (
+          <div className="mt-8">
+            <Image src="/black26/voucher-black26.png" alt="Voucher Black Friday 26 do CT Forma Fit: Plano Anual Musculação + Hyrox por R$ 139,90 por mês, código BLACK26, válido até 29/11" width={1200} height={800} className="h-auto w-full" priority />
+            <a href="/black26/voucher-black26.png" download="voucher-black26-ctformafit.png" className="mt-3 inline-block text-sm font-semibold text-orange underline underline-offset-4">
+              Salvar voucher no celular
+            </a>
+          </div>
+        )}
         <a href={wa} className="btn btn-primary mt-8 w-full !min-h-16 !text-xl">
-          <span>Falar com a equipe no WhatsApp</span>
+          <span>{black ? "Confirmar no WhatsApp" : "Falar com a equipe no WhatsApp"}</span>
           <Icon.whatsapp className="h-6 w-6" />
         </a>
         <Link href={black ? "/black26" : "/captura"} className="mt-5 inline-block text-sm text-muted underline hover:text-white">

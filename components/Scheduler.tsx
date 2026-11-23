@@ -86,7 +86,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
 
   const loadDays = useCallback(async () => {
     try {
-      const r = await fetch("/api/availability", { cache: "no-store" });
+      const r = await fetch(`/api/availability${campaign ? `?campaign=${campaign}` : ""}`, { cache: "no-store" });
       const j = await r.json();
       setDays(j.days ?? []);
       return (j.days ?? []) as DaySlots[];
@@ -94,7 +94,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
       setDays([]);
       return [];
     }
-  }, []);
+  }, [campaign]);
 
   useEffect(() => {
     loadDays();
@@ -327,7 +327,10 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
             <span className="text-orange">de perto.</span>
           </p>
           <ul className="mt-6 space-y-2 text-lg text-bone/85">
-            {["Tour completo pela estrutura", "Conheça a bioimpedância e o botão de chamada", "Tire todas as dúvidas com a equipe"].map((t) => (
+            {(camp
+              ? ["Aula experimental grátis e sem compromisso", "Voucher Black no seu WhatsApp na hora", "Plano Anual Musculação + Hyrox por R$ 139,90/mês"]
+              : ["Tour completo pela estrutura", "Conheça a bioimpedância e o botão de chamada", "Tire todas as dúvidas com a equipe"]
+            ).map((t) => (
               <li key={t} className="flex items-center gap-3">
                 <Icon.check className="h-5 w-5 text-orange" /> {t}
               </li>
@@ -369,7 +372,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
                 <h1 className="display mt-10 text-[3.2rem] text-white sm:text-6xl">
                   {camp ? (
                     <>
-                      Garanta sua <span className="text-orange">Black</span>
+                      Agende sua aula <span className="text-orange">grátis</span>
                     </>
                   ) : (
                     <>
@@ -379,7 +382,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
                 </h1>
                 <p className="mt-3 text-lg text-muted">
                   {camp
-                    ? "Agende sua aula experimental e fale com a equipe sobre o Plano Anual Musculação + Hyrox. Leva menos de 1 minuto."
+                    ? "Assim que confirmar, o voucher Black chega no seu WhatsApp. Leva menos de 1 minuto."
                     : "Leva menos de 1 minuto. Primeiro, conta pra gente quem é você."}
                 </p>
 
@@ -408,7 +411,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
                     </svg>
                   </button>
                   <p className="text-center text-xs text-muted">
-                    Seus dados são usados só para confirmar sua visita. Veja a{" "}
+                    {camp ? "Seus dados são usados só para confirmar sua aula e enviar o voucher." : "Seus dados são usados só para confirmar sua visita."} Veja a{" "}
                     <Link href="/privacidade" className="underline hover:text-white">
                       política de privacidade
                     </Link>
@@ -439,7 +442,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
                     <>Escolha o <span className="text-orange">dia</span></>
                   )}
                 </h1>
-                <p className="mt-2 text-lg text-muted">Escolha o dia e o horário que ficam melhor para você vir conhecer o CT.</p>
+                <p className="mt-2 text-lg text-muted">{camp ? "Escolha o dia e o horário da sua aula experimental. O voucher vale até 29/11." : "Escolha o dia e o horário que ficam melhor para você vir conhecer o CT."}</p>
 
                 <h2 className="eyebrow mt-8 text-orange">Dia</h2>
                 {days === null ? (
@@ -507,7 +510,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
                 )}
 
                 <div className="mt-8 border border-line bg-white/[0.03] p-5">
-                  <p className="text-sm text-muted">Sua visita</p>
+                  <p className="text-sm text-muted">{camp ? "Sua aula experimental" : "Sua visita"}</p>
                   <p className="mt-1 font-display text-2xl font-extrabold uppercase italic text-white">
                     {selectedDay && hour !== null ? (
                       <>
@@ -534,7 +537,7 @@ export function Scheduler({ campaign }: { campaign?: CampaignId }) {
                   <span>{status === "sending" || status === "done" ? "Confirmando..." : confirmLabel}</span>
                   {status === "idle" && <Icon.whatsapp className="h-6 w-6" />}
                 </button>
-                <p className="mt-3 text-center text-sm text-muted">{camp ? "Ao confirmar, abrimos o WhatsApp da equipe em uma nova aba." : "Ao confirmar, abrimos o WhatsApp da equipe em uma nova aba."}</p>
+                <p className="mt-3 text-center text-sm text-muted">{camp ? "Ao confirmar, o voucher chega no seu WhatsApp e abrimos a conversa com a equipe em uma nova aba." : "Ao confirmar, abrimos o WhatsApp da equipe em uma nova aba."}</p>
               </motion.div>
             )}
           </AnimatePresence>
