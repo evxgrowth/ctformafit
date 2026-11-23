@@ -16,6 +16,7 @@ export const CAMPAIGNS: Record<
     pixelCustomEvent: string;
     pixelFormName: string;
     lastDay: string; // último dia de aula experimental com voucher (AAAA-MM-DD)
+    minLeadMinutes: number; // antecedência mínima do agendamento (o lembrete sai 2h antes da aula)
   }
 > = {
   black26: {
@@ -30,6 +31,7 @@ export const CAMPAIGNS: Record<
     pixelCustomEvent: "FormularioBlack26",
     pixelFormName: "Formulário Black 26",
     lastDay: "2026-11-29",
+    minLeadMinutes: 180,
   },
 };
 

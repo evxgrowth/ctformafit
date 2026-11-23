@@ -59,6 +59,7 @@ function buildPayload(lead: LeadRow, s: AllSettings) {
     : baseMessage;
 
   const extra: Record<string, string> = {
+    lead_ref: lead.id, // código fixo: remarcar atualiza o mesmo compromisso no CRM
     agendamento_status: stage,
     pagina_origem: lead.source_page || (c ? c.path : "/captura"),
   };

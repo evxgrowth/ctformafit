@@ -91,7 +91,8 @@ Variáveis: `{{primeiro_nome}}`, `{{data_agenda}}`, `{{hora_agenda}}`. A Meta po
 - `lib/schedule.ts`: dias abertos, horários, feriados e antecedência mínima (`min_lead_minutes`, hoje 60). Regras e bloqueios no painel, em **Agenda**.
 - Campanha com prazo: `/api/availability?campaign=black26` e `/api/leads/confirm` recusam datas depois de `CAMPAIGNS.black26.lastDay`.
 - Hoje só abrem segunda a sexta. Para aula no sábado (28/11) abra o dia em **Agenda** (liberação por data).
-- **Lembrete 2h antes:** quem agenda com menos de 2h de antecedência recebe o lembrete logo depois da confirmação.
+- **Campanha Black:** antecedência mínima de 3h (`minLeadMinutes`), para o lembrete de 2h nunca sair atrasado.
+- **Remarcar:** o site envia `extra.lead_ref` (id do lead) e a regra "Visita agendada" usa esse campo como código do compromisso (`id_field`), então remarcar atualiza o mesmo compromisso no CRM em vez de criar outro.
 
 ## 5. Banco (`ctf_*`)
 
