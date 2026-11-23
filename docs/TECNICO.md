@@ -74,6 +74,8 @@ Regras de recebimento da integração "LP CT Geral" (CRM > Configurações > Int
 3. **Visita agendada**: move o card para "Aula Experimental Agendada" e cria o compromisso na agenda (data e hora de `visita_data`/`visita_hora`).
 4. **Agendamento incompleto**: card em "Novo Lead" com a etiqueta "Cadastro incompleto".
 
+Fluxo "Black Friday 26 · Agendou na landing": voucher na hora → espera até 2h antes da aula → `ctf_black26_lembrete_2h` → espera até 2h depois → `ctf_black26_pos_aula`. Reentrada do fluxo: no máximo 1 vez a cada 24h por contato. Aulas às 6h e 7h recebem o lembrete às 4h e 5h (decisão do dono em 23/11/2026: manter esses horários).
+
 Os lembretes (2h antes) e o pós-aula (2h depois) são **esperas do fluxo no CRM** (`wait_appointment`), contadas a partir do horário do compromisso. Detalhes do motor em `evx-ignite-flow/docs/tecnico/06-whatsapp-campanhas-fluxos-ia.md`.
 
 ### Modelos oficiais da Meta (conta do CT)
