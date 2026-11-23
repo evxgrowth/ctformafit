@@ -13,7 +13,10 @@ export default async function IntegracoesPage() {
   const t = s.tracking;
   const last4 = (v: string) => (v ? v.trim().slice(-4) : null);
   const tokenFromEnv = Boolean(process.env.EVX_CRM_TOKEN && s.secrets.crm_token === process.env.EVX_CRM_TOKEN);
-  const [lastSent, errors, pending] = await Promise.all([
+  const [blackSent, blackPending, blackErrors, lastSent, errors, pending] = await Promise.all([
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("campaign", "black26").eq("crm_status", "enviado"),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("campaign", "black26").eq("crm_status", "pendente").not("phone", "is", null),
+    db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("campaign", "black26").eq("crm_status", "erro"),
     db().from("ctf_leads").select("crm_sent_at").not("crm_sent_at", "is", null).order("crm_sent_at", { ascending: false }).limit(1).maybeSingle(),
     db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("crm_status", "erro"),
     db().from("ctf_leads").select("id", { count: "exact", head: true }).eq("crm_status", "pendente").not("phone", "is", null),
@@ -108,6 +111,21 @@ export default async function IntegracoesPage() {
             </dd>
           </div>
         </dl>
+        <div className="mt-6 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-3">
+          <div className="sm:col-span-3 text-xs font-semibold uppercase tracking-wider text-[#ff8a3d]">Campanha Black 26 (/black26)</div>
+          <div>
+            <dt className="text-xs text-white/50">Enviados ao CRM</dt>
+            <dd className="mt-1 font-semibold text-emerald-300">{blackSent.count ?? 0}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-white/50">Pendentes</dt>
+            <dd className="mt-1 font-semibold text-white">{blackPending.count ?? 0}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-white/50">Com erro</dt>
+            <dd className={`mt-1 font-semibold ${(blackErrors.count ?? 0) > 0 ? "text-red-300" : "text-white"}`}>{blackErrors.count ?? 0}</dd>
+          </div>
+        </div>
         <div className="mt-6 border-t border-white/10 pt-5">
           <CrmTest disabled={!s.secrets.crm_token} />
         </div>
@@ -143,6 +161,18 @@ export default async function IntegracoesPage() {
           <Field label="Etiquetas de quem não concluiu" hint="Separe por vírgula.">
             <input name="tags_incomplete" defaultValue={s.crm.tags_incomplete.join(", ")} className={inputCls} />
           </Field>
+          <div className="space-y-4 border border-[#ff6a13]/40 bg-[#ff6a13]/5 p-4">
+            <p className="text-sm font-bold uppercase tracking-wider text-[#ff8a3d]">Campanha Black 26 (leads de /black26)</p>
+            <Field label="Etiquetas de quem agendou (Black)" hint="Separe por vírgula. Estas etiquetas substituem as de visita agendada nos leads da Black.">
+              <input name="black_tags_completed" defaultValue={s.crm.black.tags_completed.join(", ")} className={inputCls} />
+            </Field>
+            <Field label="Etiquetas de quem não concluiu (Black)" hint="Separe por vírgula.">
+              <input name="black_tags_incomplete" defaultValue={s.crm.black.tags_incomplete.join(", ")} className={inputCls} />
+            </Field>
+            <Field label="Interesse (Black)">
+              <input name="black_interest" defaultValue={s.crm.black.interest} className={inputCls} />
+            </Field>
+          </div>
           <Toggle name="send_incomplete" defaultChecked={s.crm.send_incomplete} label="Enviar também quem não concluiu o agendamento" />
           <Field label="Minutos de inatividade para enviar um incompleto" hint="Tempo sem mexer no formulário. Se a pessoa fechar a aba, o envio é na hora.">
             <input name="incomplete_delay_min" type="number" min={5} max={240} defaultValue={s.crm.incomplete_delay_min} className={inputCls} />

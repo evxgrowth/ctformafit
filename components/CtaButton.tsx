@@ -5,9 +5,26 @@ import { useMode, useSite } from "./SiteProvider";
 import { useContactChooser } from "./ContactChooser";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { resolveButton } from "@/lib/buttons";
+import { CAMPAIGNS } from "@/lib/campaigns";
 import { sendInternal, trackWhatsappClick, withAttribution } from "@/lib/client-track";
 
 type Variant = "primary" | "ghost" | "dark";
+
+// Textos dos botões na landing da Black 26 (slot -> texto).
+const BLACK_TEXT: Record<string, string> = {
+  header: "Quero a Black",
+  "barra-fixa": "Garantir meu Plano Anual",
+  "hero-1": "Garantir meu Plano Anual",
+  "hero-2": "Ver o plano",
+  plano: "Quero esse plano agora",
+  pilares: "Quero aproveitar a Black",
+  tecnologia: "Quero ver de perto",
+  atendimento: "Agendar minha aula experimental",
+  localizacao: "Quero a Black Friday",
+  passos: "Garantir minha vaga na Black",
+  "final-1": "Garantir meu Plano Anual",
+  "final-2": "Ver o plano",
+};
 
 /**
  * Botão de CTA. O texto e a mensagem vêm do cadastro em lib/buttons.ts,
@@ -30,9 +47,10 @@ export function CtaButton({
   const { whatsapp, buttons } = useSite();
   const router = useRouter();
   const openChooser = useContactChooser();
-  const b = resolveButton(slot, buttons);
+  // Na Black os textos vêm de BLACK_TEXT (slots como "plano" não existem no cadastro de botões).
+  const b = mode === "black" ? { site: "", captura: "", message: "experimental" as const } : resolveButton(slot, buttons);
 
-  const text = mode === "captura" ? b.captura || b.site : b.site || b.captura;
+  const text = mode === "black" ? BLACK_TEXT[slot] ?? "Quero a Black Friday" : mode === "captura" ? b.captura || b.site : b.site || b.captura;
   const cls = `btn btn-${variant} ${className}`;
   const inner = (
     <>
@@ -45,8 +63,17 @@ export function CtaButton({
     </>
   );
 
-  if (mode === "captura") {
-    const href = "/captura/agendar";
+  // Botões "Ver o plano" só rolam a página até o card do plano.
+  if (mode === "black" && (slot === "hero-2" || slot === "final-2")) {
+    return (
+      <a href="#plano" className={cls} onClick={() => sendInternal("cta_click", { label: `${slot} · ${text}` })}>
+        {inner}
+      </a>
+    );
+  }
+
+  if (mode === "captura" || mode === "black") {
+    const href = mode === "black" ? CAMPAIGNS.black26.formPath : "/captura/agendar";
     return (
       <a
         href={href}

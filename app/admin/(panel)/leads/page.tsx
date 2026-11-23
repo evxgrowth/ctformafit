@@ -3,6 +3,7 @@ import { fmtDateTime, leadsQuery, type LeadFilters, type LeadListRow } from "@/l
 import { dayLabel, hourLabel } from "@/lib/schedule";
 import { formatBrPhone, isValidBrPhone, toWhatsappNumber } from "@/lib/phone";
 import { LeadActions, SyncNow } from "@/components/admin/LeadActions";
+import { NotesCell } from "@/components/admin/NotesCell";
 import { inputCls } from "@/components/admin/styles";
 
 export const metadata = { title: "Leads" };
@@ -44,7 +45,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         <div>
           <h1 className="font-display text-4xl font-black uppercase italic text-white">Leads</h1>
           <p className="text-sm text-white/60">
-            Quem preencheu o agendamento em /captura. Os dados são salvos enquanto a pessoa digita, mesmo sem confirmar.
+            Quem preencheu o agendamento em /captura e /black26. Os dados são salvos enquanto a pessoa digita, mesmo sem confirmar.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -55,12 +56,17 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         </div>
       </div>
 
-      <form className="grid gap-3 border border-white/10 bg-[#111] p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]" method="get">
+      <form className="grid gap-3 border border-white/10 bg-[#111] p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]" method="get">
         <input name="q" defaultValue={f.q} placeholder="Buscar nome, e-mail ou WhatsApp" className={inputCls} />
         <select name="status" defaultValue={f.status ?? ""} className={inputCls}>
           <option value="">Todos os status</option>
           <option value="agendado">Agendou</option>
           <option value="incompleto">Não completou</option>
+        </select>
+        <select name="origem" defaultValue={f.origem ?? ""} className={inputCls}>
+          <option value="">Origem: todas</option>
+          <option value="captura">Captura</option>
+          <option value="black26">Black 26</option>
         </select>
         <select name="crm" defaultValue={f.crm ?? ""} className={inputCls}>
           <option value="">CRM: todos</option>
@@ -78,7 +84,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
 
       <p className="text-sm text-white/60">
         {(count ?? 0).toLocaleString("pt-BR")} lead(s){" "}
-        {(f.q || f.status || f.crm || f.from || f.to) && (
+        {(f.q || f.status || f.crm || f.origem || f.from || f.to) && (
           <Link href="/admin/leads" className="ml-2 text-[#ff8a3d] underline">
             limpar filtros
           </Link>
@@ -86,7 +92,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
       </p>
 
       <div className="overflow-x-auto border border-white/10">
-        <table className="w-full min-w-[1100px] text-sm">
+        <table className="w-full min-w-[1350px] text-sm">
           <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
               <th className="px-3 py-3 font-semibold">Nome</th>
@@ -98,13 +104,14 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
               <th className="px-3 py-3 font-semibold">Status</th>
               <th className="px-3 py-3 font-semibold">Origem</th>
               <th className="px-3 py-3 font-semibold">CRM</th>
+              <th className="px-3 py-3 font-semibold">Observações</th>
               <th className="px-3 py-3" />
             </tr>
           </thead>
           <tbody>
             {leads.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-3 py-10 text-center text-white/50">
+                <td colSpan={11} className="px-3 py-10 text-center text-white/50">
                   Nenhum lead encontrado.
                 </td>
               </tr>
@@ -151,6 +158,9 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                     <Status l={l} />
                   </td>
                   <td className="max-w-[170px] px-3 py-3 text-xs text-white/60">
+                    {l.campaign === "black26" && (
+                      <span className="mb-1 inline-block bg-[#ff6a13] px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-black">Black 26</span>
+                    )}
                     {l.utm_source || l.utm_campaign ? (
                       <>
                         {l.utm_source}
@@ -168,6 +178,9 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                         {l.crm_error.slice(0, 90)}
                       </span>
                     )}
+                  </td>
+                  <td className="px-3 py-3">
+                    <NotesCell id={l.id} initial={l.notes ?? ""} />
                   </td>
                   <td className="px-3 py-3">
                     <LeadActions id={l.id} name={l.name ?? ""} />

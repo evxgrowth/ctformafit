@@ -5,7 +5,7 @@ import { sendConversions, gaClientIdFromCookie } from "@/lib/conversions";
 import { clientInfo, str } from "@/lib/request";
 import { syncPendingLeads } from "@/lib/crm";
 
-const TYPES = new Set(["page_view", "cta_click", "form_start", "step_data"]);
+const TYPES = new Set(["page_view", "cta_click", "form_start", "step_data", "form_view"]);
 let lastSync = 0;
 
 export async function POST(req: NextRequest) {

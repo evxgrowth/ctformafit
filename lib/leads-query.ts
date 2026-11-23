@@ -1,10 +1,10 @@
 import "server-only";
 import { db } from "./db";
 
-export type LeadFilters = { q?: string; status?: string; crm?: string; from?: string; to?: string; page?: string };
+export type LeadFilters = { q?: string; status?: string; crm?: string; from?: string; to?: string; page?: string; origem?: string };
 
 export const LEAD_COLUMNS =
-  "id, name, phone, email, completed, completed_at, visit_date, visit_hour, created_at, updated_at, source_page, utm_source, utm_medium, utm_campaign, utm_content, crm_status, crm_error, crm_sent_at";
+  "id, name, phone, email, completed, completed_at, visit_date, visit_hour, created_at, updated_at, source_page, utm_source, utm_medium, utm_campaign, utm_content, crm_status, crm_error, crm_sent_at, campaign, notes";
 
 export function leadsQuery(f: LeadFilters, opts: { count?: boolean } = {}) {
   let q = db()
@@ -21,6 +21,8 @@ export function leadsQuery(f: LeadFilters, opts: { count?: boolean } = {}) {
   }
   if (f.status === "agendado") q = q.eq("completed", true);
   if (f.status === "incompleto") q = q.eq("completed", false);
+  if (f.origem === "captura") q = q.is("campaign", null);
+  else if (f.origem && /^[a-z0-9]+$/.test(f.origem)) q = q.eq("campaign", f.origem);
   if (f.crm && ["pendente", "enviado", "erro", "ignorado"].includes(f.crm)) q = q.eq("crm_status", f.crm);
   if (f.from && /^\d{4}-\d{2}-\d{2}$/.test(f.from)) q = q.gte("created_at", `${f.from}T00:00:00-03:00`);
   if (f.to && /^\d{4}-\d{2}-\d{2}$/.test(f.to)) q = q.lte("created_at", `${f.to}T23:59:59-03:00`);
@@ -46,6 +48,8 @@ export type LeadListRow = {
   crm_status: string;
   crm_error: string | null;
   crm_sent_at: string | null;
+  campaign: string | null;
+  notes: string | null;
 };
 
 const dtf = new Intl.DateTimeFormat("pt-BR", {

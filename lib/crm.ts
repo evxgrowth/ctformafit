@@ -3,6 +3,7 @@ import { db } from "./db";
 import { getSettings, type AllSettings } from "./settings";
 import { isValidBrPhone } from "./phone";
 import { dayLabel, hourLabel } from "./schedule";
+import { CAMPAIGNS, parseCampaign } from "./campaigns";
 
 export type LeadRow = {
   id: string;
@@ -22,6 +23,8 @@ export type LeadRow = {
   crm_status: string;
   crm_stage: string | null;
   crm_attempts: number;
+  campaign: string | null;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -41,16 +44,28 @@ function cleanTags(tags: string[]) {
 function buildPayload(lead: LeadRow, s: AllSettings) {
   const stage = lead.completed ? "agendado" : "incompleto";
   const slot = lead.visit_date && lead.visit_hour !== null ? `${dayLabel(lead.visit_date)} às ${hourLabel(lead.visit_hour)}` : null;
-  const message = lead.completed
+  const baseMessage = lead.completed
     ? `Visita agendada pelo site para ${slot}.`
     : slot
       ? `Preencheu os dados e escolheu ${slot}, mas não confirmou o agendamento.`
       : "Preencheu nome e WhatsApp no site, mas não concluiu o agendamento.";
 
+  const camp = parseCampaign(lead.campaign);
+  const c = camp ? CAMPAIGNS[camp] : null;
+  const message = c
+    ? lead.completed
+      ? `${c.label}: agendou aula experimental${slot ? ` para ${slot}` : ""}. Interesse: ${c.plan}.`
+      : `${c.label}: preencheu os dados${slot ? ` e escolheu ${slot}` : ""}, mas não confirmou o agendamento. Interesse: ${c.plan}.`
+    : baseMessage;
+
   const extra: Record<string, string> = {
     agendamento_status: stage,
-    pagina_origem: lead.source_page || "/captura",
+    pagina_origem: lead.source_page || (c ? c.path : "/captura"),
   };
+  if (c) {
+    extra.campanha = c.label;
+    extra.plano = c.plan;
+  }
   if (lead.visit_date) extra.visita_data = lead.visit_date;
   if (lead.visit_hour !== null) extra.visita_hora = `${String(lead.visit_hour).padStart(2, "0")}:00`;
   if (lead.utm_content) extra.utm_content = lead.utm_content;
@@ -62,8 +77,8 @@ function buildPayload(lead: LeadRow, s: AllSettings) {
       name: clip(lead.name, 120) || "Lead do site",
       phone: lead.phone!,
       email: clip(lead.email, 200),
-      tags: cleanTags(lead.completed ? s.crm.tags_completed : s.crm.tags_incomplete),
-      interest: clip(s.crm.interest, 120),
+      tags: cleanTags(c ? (lead.completed ? s.crm.black.tags_completed : s.crm.black.tags_incomplete) : lead.completed ? s.crm.tags_completed : s.crm.tags_incomplete),
+      interest: clip(c ? s.crm.black.interest : s.crm.interest, 120),
       unit: clip(s.crm.unit, 120),
       message: message.slice(0, 1000),
       utm_source: clip(lead.utm_source, 120),

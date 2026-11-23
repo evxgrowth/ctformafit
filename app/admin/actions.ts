@@ -151,6 +151,11 @@ export async function saveCrmAction(_: ActionState, f: FormData): Promise<Action
     tags_incomplete: list(txt(f, "tags_incomplete", 800)),
     send_incomplete: f.get("send_incomplete") === "on",
     incomplete_delay_min: Math.min(240, Math.max(5, Number(txt(f, "incomplete_delay_min", 5)) || 30)),
+    black: {
+      interest: txt(f, "black_interest", 120),
+      tags_completed: list(txt(f, "black_tags_completed", 800)),
+      tags_incomplete: list(txt(f, "black_tags_incomplete", 800)),
+    },
   });
   if (token !== KEEP) await saveSetting("secrets", { ...s.secrets, crm_token: token });
   revalidatePath("/admin/integracoes");
@@ -190,14 +195,15 @@ export async function testCrmConnectionAction(): Promise<ActionState> {
 }
 
 /** Cria um lead de teste de verdade no CRM (com o WhatsApp do próprio CT). */
-export async function sendCrmTestLeadAction(): Promise<ActionState> {
+export async function sendCrmTestLeadAction(black = false): Promise<ActionState> {
   await requireAdmin();
   const s = await getSettings();
   const r = await postToCrm({
-    name: "TESTE - Integração site CT Forma Fit",
+    name: black ? "TESTE - Black Friday site CT Forma Fit" : "TESTE - Integração site CT Forma Fit",
     phone: s.whatsapp.number.replace(/^55/, ""),
-    tags: ["Teste integração site"],
-    interest: s.crm.interest || undefined,
+    tags: black ? s.crm.black.tags_completed : ["Teste integração site"],
+    interest: (black ? s.crm.black.interest : s.crm.interest) || undefined,
+    ...(black ? { extra: { campanha: "Black Friday 26", plano: "Plano Anual Musculação + Hyrox", pagina_origem: "/black26" } } : {}),
     unit: s.crm.unit || undefined,
     message: "Lead de teste enviado pelo painel do site. Pode excluir.",
     utm_source: "teste",
@@ -215,6 +221,16 @@ export async function sendCrmTestLeadAction(): Promise<ActionState> {
   }
   if (r.status === 401 || r.status === 403) return { error: "Token inválido ou desativado no EVX." };
   return { error: `O CRM respondeu com erro ${r.status}. ${r.text}` };
+}
+
+export async function saveLeadNotesAction(id: string, notes: string): Promise<ActionState> {
+  await requireAdmin();
+  const { error } = await db()
+    .from("ctf_leads")
+    .update({ notes: notes.trim().slice(0, 1000) || null })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  return { ok: true };
 }
 
 export async function syncCrmNowAction(): Promise<ActionState> {

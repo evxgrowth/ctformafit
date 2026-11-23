@@ -10,7 +10,9 @@ import { formatBrPhone, isValidBrPhone, onlyDigits } from "@/lib/phone";
 import { hourLabel, type DaySlots } from "@/lib/schedule";
 import { resolveButton } from "@/lib/buttons";
 import { useSite } from "./SiteProvider";
-import { getAttribution, sendInternal, sessionId, trackLead, trackSchedule, uuid, withAttribution } from "@/lib/client-track";
+import { getAttribution, sendInternal, sessionId, trackFormView, trackLead, trackSchedule, uuid, withAttribution } from "@/lib/client-track";
+import { CAMPAIGNS, type CampaignId } from "@/lib/campaigns";
+import { useRouter } from "next/navigation";
 
 const SLIDES = [
   { src: IMG.salao, alt: "Salão de musculação do CT Forma Fit" },
@@ -35,7 +37,11 @@ function ls(key: string, value?: string | null) {
 
 type Form = { name: string; phone: string; email: string };
 
-export function Scheduler() {
+export function Scheduler({ campaign }: { campaign?: CampaignId }) {
+  const router = useRouter();
+  const camp = campaign ? CAMPAIGNS[campaign] : null;
+  const basePath = camp ? camp.path : "/captura";
+  const donePath = camp ? camp.doneName : "/captura/agendou";
   const { buttons } = useSite();
   const continueLabel = resolveButton("agendar-continuar", buttons).captura;
   const confirmLabel = resolveButton("agendar-confirmar", buttons).captura;
@@ -49,13 +55,17 @@ export function Scheduler() {
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const [slide, setSlide] = useState(0);
-  const [redirectUrl, setRedirectUrl] = useState("");
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const started = useRef(false);
   const sentOnce = useRef(false);
   const latest = useRef<{ form: Form; day: string; hour: number | null }>({ form, day, hour });
   latest.current = { form, day, hour };
+
+  // Avisa o Pixel/GA qual formulário foi aberto (Captura ou Black 26).
+  useEffect(() => {
+    trackFormView(campaign);
+  }, [campaign]);
 
   // Recupera o rascunho (se a pessoa voltou à página).
   useEffect(() => {
@@ -108,7 +118,8 @@ export function Scheduler() {
         name: f.name,
         phone: onlyDigits(f.phone),
         email: f.email,
-        page: "/captura",
+        page: basePath,
+        ...(campaign ? { campaign } : {}),
         url: window.location.href,
         sessionId: sessionId(),
         attribution: { ...getAttribution(), referrer: getAttribution().referrer || document.referrer || undefined },
@@ -133,7 +144,7 @@ export function Scheduler() {
       if (f.name.trim().length >= 2 && isValidBrPhone(f.phone) && !ls(leadKey)) {
         const eventId = `lead-${leadId}`;
         ls(leadKey, "1");
-        trackLead(eventId, { email: f.email.trim() || undefined, phone: onlyDigits(f.phone) });
+        trackLead(eventId, { email: f.email.trim() || undefined, phone: onlyDigits(f.phone) }, campaign);
         extra.leadEventId = eventId;
       }
 
@@ -207,6 +218,12 @@ export function Scheduler() {
     setStatus("sending");
     setError("");
     const eventId = `schedule-${leadId}`;
+    // A nova aba do WhatsApp precisa ser aberta no próprio clique (senão o navegador bloqueia).
+    // Se for bloqueada, a página de confirmação mostra o botão do WhatsApp.
+    let wa: Window | null = null;
+    try {
+      wa = window.open("about:blank", "_blank");
+    } catch {}
     try {
       const r = await fetch("/api/leads/confirm", {
         method: "POST",
@@ -215,6 +232,7 @@ export function Scheduler() {
       });
       const j = await r.json();
       if (!r.ok || !j.ok) {
+        wa?.close();
         setStatus("idle");
         setError(j.error || "Não foi possível confirmar. Tente de novo.");
         if (r.status === 409) {
@@ -224,15 +242,24 @@ export function Scheduler() {
         }
         return;
       }
-      trackSchedule(eventId);
+      trackSchedule(eventId, campaign);
       ls(LS_ID, null);
       ls(LS_FORM, null);
+      try {
+        sessionStorage.setItem("ff_done", JSON.stringify({ wa: j.whatsapp, label: j.label, name: form.name.trim().split(/\s+/)[0] }));
+      } catch {}
       setStatus("done");
-      setRedirectUrl(j.whatsapp);
-      setTimeout(() => {
-        window.location.href = j.whatsapp;
-      }, 1100);
+      if (wa && !wa.closed) {
+        try {
+          wa.location.href = j.whatsapp;
+        } catch {
+          wa.close();
+        }
+      }
+      // Esta aba segue para a página "agendou"; o WhatsApp abre na outra.
+      router.push(withAttribution(donePath));
     } catch {
+      wa?.close();
       setStatus("idle");
       setError("Sem conexão. Verifique sua internet e tente de novo.");
     }
@@ -282,7 +309,7 @@ export function Scheduler() {
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/60 lg:bg-gradient-to-r lg:from-ink/20 lg:via-ink/50 lg:to-ink" />
 
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 sm:p-6">
-          <Link href={withAttribution("/captura")} className="relative block h-12 w-[112px]" aria-label="Voltar para a página do CT">
+          <Link href={withAttribution(basePath)} className="relative block h-12 w-[112px]" aria-label="Voltar para a página do CT">
             <Image src={IMG.logo} alt="CT Forma Fit" fill sizes="112px" className="object-contain object-left" />
           </Link>
           <div className="flex gap-1.5">
@@ -293,7 +320,7 @@ export function Scheduler() {
         </div>
 
         <div className="absolute inset-x-0 bottom-0 hidden p-10 lg:block">
-          <p className="eyebrow text-orange">Visita guiada</p>
+          <p className="eyebrow text-orange">{camp ? "Black Friday 26" : "Visita guiada"}</p>
           <p className="display mt-3 text-7xl text-white">
             Venha ver
             <br />
@@ -340,9 +367,21 @@ export function Scheduler() {
                 transition={{ duration: 0.5, ease }}
               >
                 <h1 className="display mt-10 text-[3.2rem] text-white sm:text-6xl">
-                  Agende sua <span className="text-orange">visita</span>
+                  {camp ? (
+                    <>
+                      Garanta sua <span className="text-orange">Black</span>
+                    </>
+                  ) : (
+                    <>
+                      Agende sua <span className="text-orange">visita</span>
+                    </>
+                  )}
                 </h1>
-                <p className="mt-3 text-lg text-muted">Leva menos de 1 minuto. Primeiro, conta pra gente quem é você.</p>
+                <p className="mt-3 text-lg text-muted">
+                  {camp
+                    ? "Agende sua aula experimental e fale com a equipe sobre o Plano Anual Musculação + Hyrox. Leva menos de 1 minuto."
+                    : "Leva menos de 1 minuto. Primeiro, conta pra gente quem é você."}
+                </p>
 
                 <form
                   className="mt-8 space-y-7"
@@ -492,50 +531,15 @@ export function Scheduler() {
                   disabled={!selectedDay || hour === null || status !== "idle"}
                   className="btn btn-primary mt-6 w-full !min-h-16 !text-xl disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <span>{status === "sending" ? "Confirmando..." : confirmLabel}</span>
+                  <span>{status === "sending" || status === "done" ? "Confirmando..." : confirmLabel}</span>
                   {status === "idle" && <Icon.whatsapp className="h-6 w-6" />}
                 </button>
-                <p className="mt-3 text-center text-sm text-muted">Ao confirmar, você será levado ao nosso WhatsApp.</p>
+                <p className="mt-3 text-center text-sm text-muted">{camp ? "Ao confirmar, abrimos o WhatsApp da equipe em uma nova aba." : "Ao confirmar, abrimos o WhatsApp da equipe em uma nova aba."}</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </main>
-
-      {/* Sucesso */}
-      <AnimatePresence>
-        {status === "done" && (
-          <motion.div
-            className="fixed inset-0 z-50 grid place-items-center bg-orange p-6 text-ink"
-            initial={{ clipPath: "circle(0% at 50% 100%)" }}
-            animate={{ clipPath: "circle(150% at 50% 100%)" }}
-            transition={{ duration: 0.8, ease }}
-            role="status"
-          >
-            <div className="text-center">
-              <motion.div
-                className="mx-auto grid h-24 w-24 place-items-center bg-ink text-orange [clip-path:polygon(10%_0,100%_6%,90%_100%,0_94%)]"
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.35, type: "spring", stiffness: 220, damping: 14 }}
-              >
-                <Icon.check className="h-12 w-12" />
-              </motion.div>
-              <p className="display mt-8 text-6xl">Visita agendada!</p>
-              <p className="mt-3 text-lg font-semibold">
-                {selectedDay?.label} às {hour !== null && hourLabel(hour)}
-              </p>
-              <p className="mt-6 text-ink/75">Abrindo o WhatsApp para você confirmar com a equipe...</p>
-              {redirectUrl && (
-                <a href={redirectUrl} className="btn btn-dark mt-6">
-                  <span>Abrir o WhatsApp</span>
-                  <Icon.whatsapp className="h-6 w-6" />
-                </a>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

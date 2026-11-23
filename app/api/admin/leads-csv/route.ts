@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     if (!data || data.length < 1000) break;
   }
 
-  const header = ["Nome", "WhatsApp", "E-mail", "Visita (dia)", "Visita (hora)", "Agendou em", "Primeiro contato", "Completou agendamento", "utm_source", "utm_medium", "utm_campaign", "utm_content", "Status CRM", "Erro CRM"];
+  const header = ["Nome", "WhatsApp", "E-mail", "Visita (dia)", "Visita (hora)", "Agendou em", "Primeiro contato", "Completou agendamento", "utm_source", "utm_medium", "utm_campaign", "utm_content", "Status CRM", "Erro CRM", "Campanha", "Observações"];
   const lines = rows.map((l) =>
     [
       l.name,
@@ -41,6 +41,8 @@ export async function GET(req: NextRequest) {
       l.utm_content,
       l.crm_status,
       l.crm_error,
+      l.campaign === "black26" ? "Black 26" : "Captura",
+      l.notes,
     ]
       .map(esc)
       .join(";"),

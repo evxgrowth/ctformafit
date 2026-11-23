@@ -4,6 +4,8 @@ import { getSettings } from "@/lib/settings";
 import { FAQ, IMG } from "./content";
 import { Header } from "./Header";
 import { Hero } from "./Hero";
+import { BlackHero } from "./BlackHero";
+import { PlanoBlack } from "./PlanoBlack";
 import { Manifesto, Ticker } from "./Manifesto";
 import { Gallery } from "./Gallery";
 import { Tech } from "./Tech";
@@ -66,6 +68,26 @@ function JsonLd({ phone }: { phone: string }) {
 }
 
 export async function Landing({ mode }: { mode: SiteMode }) {
+  if (mode === "black") {
+    return (
+      <ModeProvider mode={mode}>
+        <Header />
+        <main>
+          <BlackHero />
+          <PlanoBlack />
+          <Ticker />
+          <Gallery />
+          <Tech />
+          <Location />
+          <Reviews />
+          <Steps mode={mode} />
+          <Faq />
+          <FinalCta mode={mode} />
+        </main>
+        <Footer mode={mode} />
+      </ModeProvider>
+    );
+  }
   const settings = mode === "site" ? await getSettings() : null;
   const page = (
     <ModeProvider mode={mode}>

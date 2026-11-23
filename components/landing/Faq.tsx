@@ -1,11 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { FAQ } from "./content";
+import { useMode } from "../SiteProvider";
+import { FAQ as BASE_FAQ } from "./content";
+
+const BLACK_FAQ = [
+  {
+    q: "O que está incluso no Plano Anual da Black?",
+    a: "Musculação e treinos de Hyrox o ano inteiro, com bioimpedância, cardio e todo o conforto da nossa estrutura. Fale com a equipe para ver as condições vigentes.",
+  },
+  {
+    q: "Até quando vale a oferta da Black Friday?",
+    a: "A condição é por tempo limitado e sujeita à disponibilidade. Agende agora a sua aula experimental e garanta a sua vaga.",
+  },
+];
 import { Icon } from "./icons";
 import { MaskLines, Reveal } from "./motion";
 
 export function Faq() {
+  const FAQ = useMode() === "black" ? [...BLACK_FAQ, ...BASE_FAQ] : BASE_FAQ;
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section id="duvidas" className="relative bg-ink py-24 sm:py-32">

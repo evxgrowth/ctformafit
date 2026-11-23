@@ -179,22 +179,49 @@ export function trackWhatsappClick(label: string) {
   sendInternal("cta_click", { label, whatsapp: true, eventId });
 }
 
-export function trackLead(eventId: string, user: { email?: string; phone?: string }) {
-  window.fbq?.("track", "Lead", { content_name: "Agendamento de visita" }, { eventID: eventId });
+export type TrackCampaign = "black26" | null | undefined;
+
+/** Identifica qual formulário foi aberto (Captura x Black 26) para o Pixel e o GA. */
+export function trackFormView(campaign: TrackCampaign) {
+  const eventId = uuid();
+  const name = campaign === "black26" ? "Formulário Black 26" : "Formulário Captura";
+  const custom = campaign === "black26" ? "FormularioBlack26" : "FormularioCaptura";
+  const category = campaign ?? "captura";
+  window.fbq?.("track", "ViewContent", { content_name: name, content_category: category }, { eventID: eventId });
+  window.fbq?.("trackCustom", custom, { content_category: category });
+  window.gtag?.("event", "view_form", { form_name: name, campaign: category });
+  window.dataLayer?.push({ event: "ff_form_view", form: category });
+  sendInternal("form_view", { label: name, eventId });
+}
+
+export function trackLead(eventId: string, user: { email?: string; phone?: string }, campaign?: TrackCampaign) {
+  const category = campaign ?? "captura";
+  window.fbq?.(
+    "track",
+    "Lead",
+    { content_name: campaign === "black26" ? "Lead Black 26" : "Agendamento de visita", content_category: category, campaign: category },
+    { eventID: eventId },
+  );
   if (window.gtag && (user.email || user.phone)) {
     window.gtag("set", "user_data", {
       email: user.email || undefined,
       phone_number: user.phone ? `+55${user.phone.replace(/\D/g, "").replace(/^55/, "")}` : undefined,
     });
   }
-  if (!window.__ffTracking?.serverGa4) window.gtag?.("event", "generate_lead", { event_id: eventId });
-  window.dataLayer?.push({ event: "ff_lead" });
+  if (!window.__ffTracking?.serverGa4) window.gtag?.("event", "generate_lead", { event_id: eventId, campaign: category });
+  window.dataLayer?.push({ event: "ff_lead", campaign: category });
   adsConversion(window.__ffTracking?.t.google_ads_label_lead ?? "", eventId);
 }
 
-export function trackSchedule(eventId: string) {
-  window.fbq?.("track", "Schedule", { content_name: "Visita agendada" }, { eventID: eventId });
-  if (!window.__ffTracking?.serverGa4) window.gtag?.("event", "schedule_visit", { event_id: eventId });
-  window.dataLayer?.push({ event: "ff_schedule" });
+export function trackSchedule(eventId: string, campaign?: TrackCampaign) {
+  const category = campaign ?? "captura";
+  window.fbq?.(
+    "track",
+    "Schedule",
+    { content_name: campaign === "black26" ? "Agendamento Black 26" : "Visita agendada", content_category: category, campaign: category },
+    { eventID: eventId },
+  );
+  if (!window.__ffTracking?.serverGa4) window.gtag?.("event", "schedule_visit", { event_id: eventId, campaign: category });
+  window.dataLayer?.push({ event: "ff_schedule", campaign: category });
   adsConversion(window.__ffTracking?.t.google_ads_label_schedule ?? "", eventId);
 }

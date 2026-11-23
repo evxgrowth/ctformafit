@@ -40,6 +40,8 @@ export type CrmSettings = {
   tags_incomplete: string[];
   send_incomplete: boolean;
   incomplete_delay_min: number;
+  /** Campanha Black Friday 26 (leads vindos de /black26). */
+  black: { interest: string; tags_completed: string[]; tags_incomplete: string[] };
 };
 
 export type ScheduleSettings = {
@@ -92,6 +94,11 @@ export const DEFAULTS: AllSettings = {
     tags_incomplete: ["Landing Page", "Agendamento incompleto"],
     send_incomplete: true,
     incomplete_delay_min: 30,
+    black: {
+      interest: "Plano Anual Musculação + Hyrox",
+      tags_completed: ["Black Friday", "Landing Page"],
+      tags_incomplete: ["Black Friday", "Landing Page", "Agendamento incompleto"],
+    },
   },
   schedule: {
     weekdays: [1, 2, 3, 4, 5],

@@ -6,14 +6,14 @@ import { Msg } from "./ui";
 
 export function CrmTest({ disabled }: { disabled: boolean }) {
   const [pending, start] = useTransition();
-  const [which, setWhich] = useState<"conn" | "lead" | null>(null);
+  const [which, setWhich] = useState<"conn" | "lead" | "black" | null>(null);
   const [state, setState] = useState<ActionState>(undefined);
 
-  const run = (kind: "conn" | "lead") => {
-    if (kind === "lead" && !confirm("Isso cria um lead de teste no EVX com o WhatsApp do próprio CT (e pode disparar a mensagem automática de boas-vindas para esse número). Continuar?")) return;
+  const run = (kind: "conn" | "lead" | "black") => {
+    if (kind !== "conn" && !confirm("Isso cria um lead de teste no EVX com o WhatsApp do próprio CT (e pode disparar a mensagem automática de boas-vindas para esse número). Continuar?")) return;
     setWhich(kind);
     setState(undefined);
-    start(async () => setState(kind === "conn" ? await testCrmConnectionAction() : await sendCrmTestLeadAction()));
+    start(async () => setState(kind === "conn" ? await testCrmConnectionAction() : await sendCrmTestLeadAction(kind === "black")));
   };
 
   const btn =
@@ -27,6 +27,9 @@ export function CrmTest({ disabled }: { disabled: boolean }) {
         </button>
         <button type="button" className={btn} disabled={disabled || pending} onClick={() => run("lead")}>
           {pending && which === "lead" ? "Enviando..." : "Enviar lead de teste"}
+        </button>
+        <button type="button" className={btn} disabled={disabled || pending} onClick={() => run("black")}>
+          {pending && which === "black" ? "Enviando..." : "Enviar lead de teste Black"}
         </button>
       </div>
       <p className="text-xs leading-relaxed text-white/50">

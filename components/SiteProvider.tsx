@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import type { PublicSettings } from "@/lib/settings";
 import { captureAttribution, initTracking, trackPageView } from "@/lib/client-track";
 
-export type SiteMode = "site" | "captura";
+export type SiteMode = "site" | "captura" | "black";
 
 const Ctx = createContext<PublicSettings | null>(null);
 const ModeCtx = createContext<SiteMode>("site");

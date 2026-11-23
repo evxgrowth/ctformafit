@@ -19,6 +19,11 @@ const STEPS = {
     { t: "Receba a confirmação", d: "Você é levado ao nosso WhatsApp para confirmar tudo com a equipe." },
     { t: "Venha conhecer o CT", d: "A gente te mostra a estrutura inteira e tira todas as suas dúvidas." },
   ],
+  black: [
+    { t: "Deixe seus dados", d: "Preencha nome, WhatsApp e e-mail e escolha o dia da sua aula experimental." },
+    { t: "Confirme com a equipe", d: "Você recebe a confirmação e fala com a gente no WhatsApp sobre o Plano Anual." },
+    { t: "Garanta a Black", d: "Venha treinar, conheça o CT e feche o Plano Anual Musculação + Hyrox." },
+  ],
 };
 
 export function Steps({ mode }: { mode: SiteMode }) {
@@ -51,7 +56,8 @@ export function Steps({ mode }: { mode: SiteMode }) {
   );
 }
 
-export function FinalCta() {
+export function FinalCta({ mode = "captura" }: { mode?: SiteMode }) {
+  const black = mode === "black";
   return (
     <section className="relative isolate overflow-hidden bg-ink">
       <ParallaxImage src={IMG.esteiras} alt="Alunos treinando no cardio do CT Forma Fit" className="absolute inset-0 -z-10 opacity-60" strength={90} />
@@ -61,11 +67,13 @@ export function FinalCta() {
           <p className="eyebrow text-orange">Sua vez</p>
         </Reveal>
         <h2 className="display mx-auto mt-4 max-w-5xl text-[clamp(3.2rem,11vw,8.5rem)] text-white">
-          <MaskLines lines={["Sua melhor versão", <span key="v" className="text-orange">começa com</span>, "uma visita."]} />
+          <MaskLines lines={black ? ["Seu melhor ano", <span key="v" className="text-orange">começa na</span>, "Black Friday."] : ["Sua melhor versão", <span key="v" className="text-orange">começa com</span>, "uma visita."]} />
         </h2>
         <Reveal delay={0.15}>
           <p className="mx-auto mt-6 max-w-xl text-lg text-bone/80 sm:text-xl">
-            Venha conhecer o CT Forma Fit por dentro. A gente te mostra tudo e você decide com calma.
+            {black
+              ? "Plano Anual Musculação + Hyrox com condição exclusiva. Garanta o seu antes que a Black acabe."
+              : "Venha conhecer o CT Forma Fit por dentro. A gente te mostra tudo e você decide com calma."}
           </p>
         </Reveal>
         <Reveal delay={0.25} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -94,7 +102,7 @@ function Social({ href, label, children }: { href: string; label: string; childr
 export function Footer({ mode }: { mode: SiteMode }) {
   const year = new Date().getFullYear();
 
-  if (mode === "captura") {
+  if (mode === "captura" || mode === "black") {
     return (
       <footer className="border-t border-line bg-coal pb-28 pt-10 sm:pb-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center text-sm text-muted sm:flex-row sm:justify-between sm:px-6 sm:text-left">

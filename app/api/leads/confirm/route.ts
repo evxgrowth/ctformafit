@@ -8,6 +8,7 @@ import { sendLeadToCrm } from "@/lib/crm";
 import { clientInfo, str } from "@/lib/request";
 import { isValidBrPhone, nationalDigits } from "@/lib/phone";
 import { fillMessage, whatsappUrl } from "@/lib/whatsapp";
+import { CAMPAIGNS, parseCampaign } from "@/lib/campaigns";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   const info = clientInfo(req);
+  const campaign = parseCampaign(b.campaign);
   const a = (b.attribution ?? {}) as Record<string, unknown>;
   const now = new Date().toISOString();
 
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest) {
     email,
     completed: true,
     completed_at: now,
+    ...(campaign ? { campaign } : {}),
     visit_date: date,
     visit_hour: hour,
     visit_at: visitIso(date, hour),
@@ -66,7 +69,9 @@ export async function POST(req: NextRequest) {
     : await db().from("ctf_leads").insert({
         id,
         ...fields,
-        source_page: str(b.page, 200) ?? "/captura",
+        source_page: campaign ? CAMPAIGNS[campaign].path : (str(b.page, 200) ?? "/captura"),
+        campaign,
+        notes: campaign ? CAMPAIGNS[campaign].note : null,
         session_id: str(b.sessionId, 64),
         utm_source: str(a.utm_source, 120),
         utm_medium: str(a.utm_medium, 120),
@@ -82,7 +87,7 @@ export async function POST(req: NextRequest) {
   const whatsappLink = () =>
     whatsappUrl(
       s.whatsapp.number,
-      fillMessage(s.whatsapp.messages.agendamento, { nome: name.split(/\s+/)[0], dia: dayLabel(date), hora: hourLabel(hour) }),
+      fillMessage(campaign ? CAMPAIGNS[campaign].waMessage : s.whatsapp.messages.agendamento, { nome: name.split(/\s+/)[0], dia: dayLabel(date), hora: hourLabel(hour) }),
     );
 
   if (res.error) {
@@ -119,7 +124,9 @@ export async function POST(req: NextRequest) {
         phone,
         email: email ?? undefined,
         externalId: id,
-        custom: { content_name: "Visita agendada", visit_date: date, visit_hour: hour },
+        custom: campaign
+          ? { content_name: "Agendamento Black 26", content_category: "black26", campaign, visit_date: date, visit_hour: hour }
+          : { content_name: "Visita agendada", content_category: "captura", visit_date: date, visit_hour: hour },
       }),
     ]);
   });

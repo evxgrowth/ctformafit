@@ -5,6 +5,7 @@ import { sendIncompleteOnLeave } from "@/lib/crm";
 import { sendConversions, gaClientIdFromCookie } from "@/lib/conversions";
 import { clientInfo, str } from "@/lib/request";
 import { isValidBrPhone, nationalDigits } from "@/lib/phone";
+import { CAMPAIGNS, parseCampaign } from "@/lib/campaigns";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
   const visitHour = Number.isInteger(b.visit_hour) && (b.visit_hour as number) >= 0 && (b.visit_hour as number) <= 23 ? (b.visit_hour as number) : null;
   const a = (b.attribution ?? {}) as Record<string, unknown>;
   const info = clientInfo(req);
+  const campaign = parseCampaign(b.campaign);
 
   const { data: existing } = await db()
     .from("ctf_leads")
@@ -67,7 +69,9 @@ export async function POST(req: NextRequest) {
       .insert({
         id,
         ...fields,
-        source_page: str(b.page, 200) ?? "/captura",
+        source_page: campaign ? CAMPAIGNS[campaign].path : (str(b.page, 200) ?? "/captura"),
+        campaign,
+        notes: campaign ? CAMPAIGNS[campaign].note : null,
         session_id: str(b.sessionId, 64),
         utm_source: str(a.utm_source, 120),
         utm_medium: str(a.utm_medium, 120),
@@ -120,7 +124,9 @@ export async function POST(req: NextRequest) {
         phone: phone ?? undefined,
         email: email ?? undefined,
         externalId: id,
-        custom: { content_name: "Agendamento de visita" },
+        custom: campaign
+          ? { content_name: "Lead Black 26", content_category: "black26", campaign }
+          : { content_name: "Agendamento de visita", content_category: "captura" },
       });
     });
   }
